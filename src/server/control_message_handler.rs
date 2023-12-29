@@ -1,6 +1,6 @@
-use crate::{game::{new_game::NewGame, game_state::GameState}, storage::active::GAMES};
+use crate::{game::{new_game::NewGame, game_state::GameState}, storage::{active::GAMES, operations_socket::{get_socket_name, is_authenticated}}};
 
-use super::{message::WSSMessage, socket_handler::{is_authenticated, get_socket_name}};
+use super::message::WSSMessage;
 
 pub fn start_game(name: String, socket_id: String) -> WSSMessage {
     if !is_authenticated(&socket_id) {
@@ -20,6 +20,7 @@ pub fn create_game(name: String, socket_id: String) -> WSSMessage {
     if !is_authenticated(&socket_id) {
         return WSSMessage::Unauthorized;
     }
+
     let game = NewGame {
         name,
         player1: get_socket_name(&socket_id).unwrap(),

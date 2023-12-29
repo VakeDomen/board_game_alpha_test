@@ -1,3 +1,5 @@
+use crate::storage::operations_socket::authenticate_socket;
+
 use super::{
     message::WSSMessage, 
     control_message::ControlMessage, 
@@ -6,7 +8,6 @@ use super::{
         join_game, 
         start_game
     }, 
-    socket_handler::authenticate_socket
 };
 
 pub fn handle(msg: WSSMessage, socket_id: String) -> WSSMessage {
