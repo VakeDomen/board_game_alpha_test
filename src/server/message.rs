@@ -10,6 +10,7 @@ pub enum WSSMessage {
     Control(ControlMessage),
     Success(bool),
     Unknown,
+    Unauthorized,
 }
 
 impl From<Message> for WSSMessage {
