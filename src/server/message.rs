@@ -1,13 +1,13 @@
-use std::fmt::format;
-
 use serde::Serialize;
 use serde_any::Format;
 use tokio_tungstenite::tungstenite::Message;
 
+use super::control_message::ControlMessage;
+
 #[derive(Debug, Serialize)]
 pub enum WSSMessage {
     Game(String),
-    Control(String),
+    Control(ControlMessage),
     Unknown,
 }
 
@@ -21,19 +21,11 @@ impl From<Message> for WSSMessage {
             },
         };
 
-        let prefix = "GAME ";
-        if message_string.starts_with(prefix) {
-            let no_prefix = message_string[prefix.len()..].to_string();
-            return Self::Game(no_prefix);
+        match message_string.as_str() {
+            _ if message_string.starts_with("GAME ") => Self::Game(message_string["GAME ".len()..].to_string()),
+            _ if message_string.starts_with("CONTROL ") => Self::Control(ControlMessage::from(message_string["CONTROL ".len()..].to_string())),
+            _ => Self::Unknown,
         }
-
-        let prefix = "CONTROL ";
-        if message_string.starts_with(prefix) {
-            let no_prefix = message_string[prefix.len()..].to_string();
-            return Self::Control(no_prefix);
-        }
-
-        Self::Unknown
     }
 }
 
