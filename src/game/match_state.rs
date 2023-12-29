@@ -1,6 +1,6 @@
 use super::{game::Game, new_game::NewGame};
 
-pub enum GameState {
+pub enum MatchState {
     Lobby(NewGame),
     Running(Game)
 }

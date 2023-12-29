@@ -1,12 +1,12 @@
-use crate::game::{game_state::GameState, new_game::NewGame, game::Game};
+use crate::game::{match_state::MatchState, new_game::NewGame, game::Game};
 
-use super::active::GAMES;
+use super::active::MATCHES;
 
 pub fn get_new_games() -> Vec<NewGame> {
     let mut new_games = vec![];
-    let games = GAMES.lock().unwrap();
+    let games = MATCHES.lock().unwrap();
     for game in games.iter() {
-        if let GameState::Lobby(ng) = game {
+        if let MatchState::Lobby(ng) = game {
             new_games.push(ng.clone());
         }
     }
@@ -16,9 +16,9 @@ pub fn get_new_games() -> Vec<NewGame> {
 
 pub fn get_running_games(player_name: String) -> Vec<Game> {
     let mut running_games = vec![];
-    let games = GAMES.lock().unwrap();
+    let games = MATCHES.lock().unwrap();
     for game in games.iter() {
-        if let GameState::Running(g) = game {
+        if let MatchState::Running(g) = game {
             if g.player1 == player_name || g.player2 == player_name {
                 running_games.push(g.clone());
             }

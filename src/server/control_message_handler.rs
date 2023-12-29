@@ -1,4 +1,4 @@
-use crate::{game::{new_game::NewGame, game_state::GameState}, storage::{active::GAMES, operations_socket::{get_socket_name, is_authenticated}, operations_game::{get_new_games, get_lobby_game_by_name, set_player2}}};
+use crate::{game::{new_game::NewGame, match_state::MatchState}, storage::{active::MATCHES, operations_socket::{get_socket_name, is_authenticated}, operations_game::{get_new_games, get_lobby_game_by_name, set_player2}}};
 
 use super::message::WSSMessage;
 
@@ -39,8 +39,8 @@ pub fn create_game(name: String, socket_id: String) -> WSSMessage {
         player2: None,
     };
 
-    let mut games = GAMES.lock().unwrap();
-    games.push(GameState::Lobby(game.clone()));
+    let mut games = MATCHES.lock().unwrap();
+    games.push(MatchState::Lobby(game.clone()));
     WSSMessage::NewGame(game)
 }
 
