@@ -1,4 +1,4 @@
-use super::{new_game::NewGame, game_commands::GameCommand};
+use super::{new_game::NewGame};
 
 
 #[derive(Debug, Clone)]
@@ -85,35 +85,64 @@ impl Default for GameState {
 }
 
 impl Game {
-    fn progress_state(self) -> Result<(), ProgressionError> {
-        let current_state = self.states.last().unwrap();
-        match current_state.turn_phase {
-            TurnPhase::Setup => progress_from_setup(current_state),
-            TurnPhase::Dmg => progress_from_dmg(current_state),
-            TurnPhase::Triggers => progress_from_triggers(current_state),
-            TurnPhase::Main => progress_from_main(current_state),
-            TurnPhase::End => progress_from_end(current_state),
-        }          
+    fn progress_state(mut self) -> Result<(), ProgressionError> {
+        let mut current_state = self.states.last_mut().unwrap();
+        let result = match current_state.turn_phase {
+            TurnPhase::Setup => progress_from_setup(&mut current_state),
+            TurnPhase::Dmg => progress_from_dmg(&mut current_state),
+            TurnPhase::Triggers => progress_from_triggers(&mut current_state),
+            TurnPhase::Main => progress_from_main(&mut current_state),
+            TurnPhase::End => progress_from_end(&mut current_state),
+        };
+        let potenital_next_state = match result {
+            Ok(potenital_next_state) => potenital_next_state,
+            Err(e) => {
+                println!("Error progressing to next state: {:#?}", e);
+                return Err(e);
+            },
+        };
+        if let Some(state) = potenital_next_state {
+            self.states.push(state);
+        }
+        Ok(())
+
     }
 }
 
-fn progress_from_end(state: &GameState) -> Result<(), ProgressionError> {
-    todo!()
+fn progress_from_end(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    let mut new_state = state.clone();
+
+    // next player turn in the next state
+    new_state.turn_phase = TurnPhase::Dmg;
+    if state.player_turn == PlayerTurn::First {
+        new_state.player_turn = PlayerTurn::Second;
+    } else {
+        new_state.player_turn = PlayerTurn::First;
+    }
+
+
+    // check for game end
+
+
+    Ok(Some(new_state))
 }
 
-fn progress_from_main(state: &GameState) -> Result<(), ProgressionError> {
-    todo!()
+fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    state.turn_phase = TurnPhase::End;
+    Ok(None)
 }
 
-fn progress_from_triggers(state: &GameState) -> Result<(), ProgressionError> {
-    todo!()
+fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    state.turn_phase = TurnPhase::Main;
+    Ok(None)
 }
 
-fn progress_from_dmg(state: &GameState) -> Result<(), ProgressionError> {
-    todo!()
+fn progress_from_dmg(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    state.turn_phase = TurnPhase::Triggers;
+    Ok(None)
 }
 
-fn progress_from_setup(state: &GameState) -> Result<(), ProgressionError> {
+fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
     if state.move_que.is_empty() {
         return Err(ProgressionError::NoBasePlacement);
     }
@@ -142,12 +171,14 @@ fn progress_from_setup(state: &GameState) -> Result<(), ProgressionError> {
     }
 
     if setup_move {
-        Ok(())
+        state.turn_phase = TurnPhase::Dmg;
+        Ok(None)
     } else {
         Err(ProgressionError::NoBasePlacement)
     }
 }
 
+#[derive(Debug)]
 pub enum ProgressionError {
     NoBasePlacement
 }
