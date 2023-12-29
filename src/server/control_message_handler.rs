@@ -1,6 +1,6 @@
-use crate::storage::active::SOCKETS;
+use crate::{game::{new_game::NewGame, game_state::GameState}, storage::active::GAMES};
 
-use super::message::WSSMessage;
+use super::{message::WSSMessage, socket_handler::{is_authenticated, get_socket_name}};
 
 pub fn start_game(name: String, socket_id: String) -> WSSMessage {
     if !is_authenticated(&socket_id) {
@@ -20,25 +20,14 @@ pub fn create_game(name: String, socket_id: String) -> WSSMessage {
     if !is_authenticated(&socket_id) {
         return WSSMessage::Unauthorized;
     }
-    WSSMessage::Unknown
+    let game = NewGame {
+        name,
+        player1: get_socket_name(&socket_id).unwrap(),
+        player2: None,
+    };
+
+    let mut games = GAMES.lock().unwrap();
+    games.push(GameState::Lobby(game.clone()));
+    WSSMessage::NewGame(game)
 }
 
-pub fn authenticate_socket(new_name: String, socket_id: String) -> WSSMessage {
-    let mut socket_data = SOCKETS.lock().unwrap();
-    for (id, data) in socket_data.iter_mut() {
-        if *id == socket_id {
-            data.1 = Some(new_name.clone()); // Dereference to modify
-            return WSSMessage::Success(true)
-        }
-    }
-    WSSMessage::Success(false) // Assuming this is a valid return value
-}
-
-pub fn is_authenticated(socket_id: &String) -> bool {
-    let socket_data = SOCKETS.lock().unwrap();
-    let s = socket_data.get(socket_id);
-    if let Some(s) = s {
-        return s.1.is_some();
-    }
-    false
-}

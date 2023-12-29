@@ -1,12 +1,12 @@
 use super::{
     message::WSSMessage, 
     control_message::ControlMessage, 
-    control_message_handler::{
-        authenticate_socket, 
+    control_message_handler::{ 
         create_game, 
         join_game, 
         start_game
-    }
+    }, 
+    socket_handler::authenticate_socket
 };
 
 pub fn handle(msg: WSSMessage, socket_id: String) -> WSSMessage {

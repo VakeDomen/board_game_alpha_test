@@ -2,15 +2,21 @@ use serde::Serialize;
 use serde_any::Format;
 use tokio_tungstenite::tungstenite::Message;
 
+use crate::game::new_game::NewGame;
+
 use super::control_message::ControlMessage;
 
 #[derive(Debug, Serialize)]
 pub enum WSSMessage {
+    // from client
     Game(String),
     Control(ControlMessage),
-    Success(bool),
     Unknown,
+
+    // to client
+    Success(bool),
     Unauthorized,
+    NewGame(NewGame),
 }
 
 impl From<Message> for WSSMessage {
