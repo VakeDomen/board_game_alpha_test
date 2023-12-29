@@ -4,6 +4,8 @@ use tokio_tungstenite::tungstenite::accept;
 
 use crate::storage::active::{UNKNOWN_SOCKETS, NAMED_SOCKETS};
 
+use super::message::WSSMessage;
+
 
 pub fn start_server(listen_addr: &str) {
     let listener = TcpListener::bind(&listen_addr).unwrap();
@@ -30,24 +32,26 @@ pub fn handle_new_connection(stream: TcpStream) {
         }
         
         loop {
-            let msg = match websocket.read() {
-                Ok(msg) => msg,
+            let raw_msg = match websocket.read() {
+                Ok(raw_msg) => raw_msg,
                 Err(e) => {
                     println!("Socket read error: {:#?}", e);
                     break;
                 }
             };
 
-            if msg.is_close() {
+            if raw_msg.is_close() {
                 println!("Closing socket!");
                 break;
             }
 
             // Echo the message back
-            if msg.is_binary() || msg.is_text() {
-                println!("MSG is data");
-                if let Err(e) = websocket.write(msg) {
-                    println!("Something went wrong sending msg to WS clinet: {:#?}", e)
+            if raw_msg.is_binary() || raw_msg.is_text() {
+                
+                let msg = WSSMessage::from(raw_msg);
+                
+                if let Err(e) = websocket.write(msg.into()) {
+                    println!("Something went wrong sending raw_msg to WS clinet: {:#?}", e)
                 };
 
                 let _ = websocket.flush();
