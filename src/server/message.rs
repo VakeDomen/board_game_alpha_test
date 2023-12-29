@@ -8,6 +8,7 @@ use super::control_message::ControlMessage;
 pub enum WSSMessage {
     Game(String),
     Control(ControlMessage),
+    Success(bool),
     Unknown,
 }
 
