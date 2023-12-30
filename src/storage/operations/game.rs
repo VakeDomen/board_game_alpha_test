@@ -1,6 +1,5 @@
-use crate::game::{match_state::MatchState, new_game::NewGame, game::Game};
+use crate::{game::core::{match_state::MatchState, new_game::NewGame, game::Game}, storage::active::MATCHES};
 
-use super::active::MATCHES;
 
 pub fn get_new_games() -> Vec<NewGame> {
     let mut new_games = vec![];

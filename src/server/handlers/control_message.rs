@@ -1,6 +1,10 @@
-use crate::{game::{new_game::NewGame, match_state::MatchState}, storage::{active::MATCHES, operations_socket::{get_socket_name, is_authenticated}, operations_game::{get_new_games, get_lobby_game_by_name, set_player2}}};
+use crate::{
+    game::core::{new_game::NewGame, match_state::MatchState}, 
+    storage::{active::MATCHES, 
+    operations::socket::{get_socket_name, is_authenticated}, 
+    operations::game::{get_lobby_game_by_name, set_player2}}};
 
-use super::message::WSSMessage;
+use crate::server::messages::wss_message::WSSMessage;
 
 pub fn start_game(name: String, socket_id: String) -> WSSMessage {
     if !is_authenticated(&socket_id) {

@@ -1,6 +1,6 @@
 use tokio_tungstenite::tungstenite::{Error, Message};
 
-use crate::{server::message::WSSMessage, storage::active::SOCKETS};
+use crate::{server::messages::wss_message::WSSMessage, storage::active::SOCKETS};
 
 pub fn get_socket_name(socket_id: &String) -> Option<String> {
     let socket_data = SOCKETS.lock().unwrap();

@@ -2,8 +2,8 @@ use std::{net::{TcpListener, TcpStream}, thread::spawn};
 use tokio_tungstenite::tungstenite::{accept, Message};
 use uuid::Uuid;
 
-use crate::storage::{active::SOCKETS, operations_socket::{remove_socket, send_message, get_message}};
-use super::{message::WSSMessage, message_handler::handle};
+use crate::storage::{active::SOCKETS, operations::socket::{remove_socket, send_message, get_message}};
+use super::{messages::wss_message::WSSMessage, handlers::wss_message::handle};
 
 
 pub fn start_server(listen_addr: &str) {

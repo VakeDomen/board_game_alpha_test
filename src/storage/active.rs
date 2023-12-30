@@ -3,7 +3,7 @@ use std::{sync::Mutex, net::TcpStream, collections::HashMap};
 use once_cell::sync::Lazy;
 use tokio_tungstenite::tungstenite::WebSocket;
 
-use crate::game::match_state::MatchState;
+use crate::game::core::match_state::MatchState;
 
 pub type SocketData<'a> = (WebSocket<TcpStream>, Option<String>);
 

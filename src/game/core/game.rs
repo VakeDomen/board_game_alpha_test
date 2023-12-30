@@ -21,7 +21,7 @@ impl From<NewGame> for Game {
 
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum PlayerTurn {
+pub enum Player {
     First,
     Second,
 }
@@ -53,12 +53,12 @@ pub enum TurnPhase {
 
 #[derive(Debug, Clone)]
 pub struct GameState {
-    pub player_turn: PlayerTurn,
-    pub finalized: bool,
+    pub player_turn: Player,
+    pub winner: Option<Player>,
+    pub turn_phase: TurnPhase,
     pub turn: i32,
     pub tiles: Vec<Tile>,
     pub move_que: Vec<Move>,
-    pub turn_phase: TurnPhase,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -74,9 +74,9 @@ pub enum Tile {
 impl Default for GameState {
     fn default() -> Self {
         Self { 
-            player_turn: PlayerTurn::First, 
-            finalized: false, 
+            player_turn: Player::First, 
             turn: 0, 
+            winner: None,
             tiles: vec![], 
             move_que: vec![], 
             turn_phase: TurnPhase::Setup,
@@ -114,10 +114,10 @@ fn progress_from_end(state: &mut GameState) -> Result<Option<GameState>, Progres
 
     // next player turn in the next state
     new_state.turn_phase = TurnPhase::Dmg;
-    if state.player_turn == PlayerTurn::First {
-        new_state.player_turn = PlayerTurn::Second;
+    if state.player_turn == Player::First {
+        new_state.player_turn = Player::Second;
     } else {
-        new_state.player_turn = PlayerTurn::First;
+        new_state.player_turn = Player::First;
     }
 
 
@@ -150,7 +150,7 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
     let mut setup_move = false;
 
     
-    if state.player_turn == PlayerTurn::First {
+    if state.player_turn == Player::First {
         for player_move in state.move_que.iter() {
             if let Move::Tech(m) = player_move {
                 if let TechMove::SetupBase(x, y) = m {
@@ -160,7 +160,7 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
         }
     }
 
-    if state.player_turn == PlayerTurn::Second {
+    if state.player_turn == Player::Second {
         for player_move in state.move_que.iter() {
             if let Move::Bug(m) = player_move {
                 if let BugMove::SetupBase(x, y) = m {

@@ -2,7 +2,7 @@ use serde::Serialize;
 use serde_any::Format;
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::game::new_game::NewGame;
+use crate::game::core::new_game::NewGame;
 
 use super::control_message::ControlMessage;
 

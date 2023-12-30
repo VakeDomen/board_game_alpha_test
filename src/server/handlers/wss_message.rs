@@ -1,14 +1,10 @@
-use crate::storage::operations_socket::authenticate_socket;
-
-use super::{
-    message::WSSMessage, 
-    control_message::ControlMessage, 
-    control_message_handler::{ 
-        create_game, 
-        join_game, 
-        start_game
-    }, 
+use crate::{
+    storage::operations::socket::authenticate_socket, 
+    server::messages::{wss_message::WSSMessage, control_message::ControlMessage}
 };
+
+use super::control_message::{create_game, join_game, start_game};
+
 
 pub fn handle(msg: WSSMessage, socket_id: String) -> WSSMessage {
     match msg {
