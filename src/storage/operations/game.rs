@@ -1,4 +1,7 @@
-use crate::{game::core::{match_state::MatchState, new_game::NewGame, game::Game}, storage::active::MATCHES};
+use std::ops::Index;
+
+use crate::{storage::active::MATCHES, game::core::{lobby::{new_game::NewGame, match_state::MatchState}, game::{Game, GameState}}};
+
 
 
 pub fn get_new_games() -> Vec<NewGame> {
@@ -32,5 +35,41 @@ pub fn get_lobby_game_by_name(name: String) -> Option<NewGame> {
 }
 
 pub fn set_player2(game_name: String, player_name: String) {
+    let mut games = MATCHES.lock().unwrap();
+    for game in games.iter_mut() {
+        if let MatchState::Lobby(g) = game {
+            if g.name == game_name {
+                g.player2 = Some(player_name.clone());
+            }
+        }
+    }
+}   
 
+pub fn has_second_player(name: &str) -> bool {
+    let game = get_lobby_game_by_name(name.to_string());
+    if !game.is_some() {
+        return false;
+    }
+    game.unwrap().player2.is_some()
+}
+
+pub fn remove_from_storage(name: String) {
+    let mut games = MATCHES.lock().unwrap();
+    let mut index_to_delete = None;
+    for (index, game) in games.iter().enumerate() {
+        if let MatchState::Lobby(g) = game {
+            if g.name == name {
+                index_to_delete = Some(index);
+                break;
+            }
+        }
+    }
+    if index_to_delete.is_some() {
+        games.remove(index_to_delete.unwrap());
+    }
+}
+
+pub fn add_to_storage(game: MatchState) {
+    let mut games = MATCHES.lock().unwrap();
+    games.push(game);
 }

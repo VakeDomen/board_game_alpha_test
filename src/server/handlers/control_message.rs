@@ -1,8 +1,10 @@
 use crate::{
-    game::core::{new_game::NewGame, match_state::MatchState}, 
-    storage::{active::MATCHES, 
-    operations::socket::{get_socket_name, is_authenticated}, 
-    operations::game::{get_lobby_game_by_name, set_player2}}};
+    game::core::{lobby::{new_game::NewGame, match_state::MatchState}, game::Game}, 
+    storage::operations::{
+        socket::{is_authenticated, get_socket_name}, 
+        game::{has_second_player, get_lobby_game_by_name, remove_from_storage, add_to_storage, set_player2}
+    }
+};
 
 use crate::server::messages::wss_message::WSSMessage;
 
@@ -10,6 +12,21 @@ pub fn start_game(name: String, socket_id: String) -> WSSMessage {
     if !is_authenticated(&socket_id) {
         return WSSMessage::Unauthorized;
     }
+
+    if !has_second_player(&name) {
+        return WSSMessage::NotEnoughPlayers;
+    }
+
+    let game = get_lobby_game_by_name(name.clone());
+    if game.is_none() {
+        return WSSMessage::Success(false);
+    }
+    let game = game.unwrap();
+    let game = Game::from(game);
+
+    remove_from_storage(name);
+    add_to_storage(MatchState::Running(game));
+
     WSSMessage::Unknown
 }
 
@@ -37,14 +54,14 @@ pub fn create_game(name: String, socket_id: String) -> WSSMessage {
         return WSSMessage::Unauthorized;
     }
 
+    let get_socket_name = get_socket_name(&socket_id);
     let game = NewGame {
         name,
-        player1: get_socket_name(&socket_id).unwrap(),
+        player1: get_socket_name.unwrap(),
         player2: None,
     };
 
-    let mut games = MATCHES.lock().unwrap();
-    games.push(MatchState::Lobby(game.clone()));
+    add_to_storage(MatchState::Lobby(game.clone()));
     WSSMessage::NewGame(game)
 }
 

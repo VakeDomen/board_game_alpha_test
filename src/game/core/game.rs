@@ -1,4 +1,4 @@
-use super::{new_game::NewGame};
+use super::lobby::new_game::NewGame;
 
 
 #[derive(Debug, Clone)]

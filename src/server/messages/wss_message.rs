@@ -2,7 +2,8 @@ use serde::Serialize;
 use serde_any::Format;
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::game::core::new_game::NewGame;
+
+use crate::game::core::lobby::new_game::NewGame;
 
 use super::control_message::ControlMessage;
 
@@ -15,8 +16,9 @@ pub enum WSSMessage {
 
     // to client
     Success(bool),
-    Unauthorized,
     NewGame(NewGame),
+    Unauthorized,
+    NotEnoughPlayers,
 }
 
 impl From<Message> for WSSMessage {
