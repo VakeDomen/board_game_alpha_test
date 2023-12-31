@@ -1,2 +1,3 @@
 pub mod upgrades;
-pub mod activators;
+pub mod ability_active;
+pub mod ability_passive;

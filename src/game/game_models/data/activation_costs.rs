@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, vec};
 
 use crate::game::game_models::types::{structure::StructureSelector, resource::Resouce};
 
@@ -34,6 +34,9 @@ pub fn get_activation_costs() -> HashMap<StructureSelector, Vec<Vec<Resouce>>> {
     ]);
     hm.insert(StructureSelector::TechArtillery2, vec![]);
     hm.insert(StructureSelector::TechWall1, vec![]);
-    
+    hm.insert(StructureSelector::TechNuke, vec![
+        vec![Resouce::Metal, Resouce::Metal, Resouce::Metal],
+    ]);
+
     hm
 }

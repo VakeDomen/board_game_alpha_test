@@ -90,5 +90,11 @@ pub fn get_stats() -> HashMap<StructureSelector, StructureStats> {
         range: 0,
     });
 
+    hm.insert(StructureSelector::TechNuke, StructureStats {
+        hp: 1,
+        attack: 0,
+        range: 0,
+    });
+
     hm
 }

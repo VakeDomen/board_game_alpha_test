@@ -1,4 +1,6 @@
 
+use std::collections::HashMap;
+
 use serde::Serialize;
 
 use crate::game::game_models::data::stats::StructureStats;
@@ -23,6 +25,7 @@ pub enum StructureSelector {
     TechArtillery1,
     TechArtillery2,
     TechWall1,
+    TechNuke,
 }
 
 
@@ -36,6 +39,7 @@ pub struct Structure {
     pub activated: bool,
     pub activation_resources: Vec<Resouce>,
     pub exhausted: bool,
+    pub additional_data: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Clone)]

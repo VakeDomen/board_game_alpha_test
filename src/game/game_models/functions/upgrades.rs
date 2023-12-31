@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::game_models::types::{structure::{StructureSelector, Structure}, tile_traits::Upgradable, resource::Resouce};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::Upgradable, resource::Resouce}, core::game::GameState};
 
 
 
@@ -30,12 +30,13 @@ pub fn get_upgraders() -> HashMap<StructureSelector, Option<Box<dyn Upgradable>>
     hm.insert(StructureSelector::TechArtillery1, Some(Box::new(AtrileryUpgrader{})));
     hm.insert(StructureSelector::TechArtillery2, None);
     hm.insert(StructureSelector::TechWall1, None);
+    hm.insert(StructureSelector::TechNuke, None);
     hm
 }
 
 
 impl Upgradable for BugBase2Upgrader {
-    fn upgrade(self, game_state: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn upgrade(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_upgrade(game_state, structure) {
             return false;
         }
@@ -45,13 +46,13 @@ impl Upgradable for BugBase2Upgrader {
         true
     }
 
-    fn can_upgrade(self, game_state: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn can_upgrade(self, game_state: &GameState, structure: &mut Structure) -> bool {
         todo!()
     }
 }
 
 impl Upgradable for BugBase1Upgrader {
-    fn upgrade(self, game_state: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn upgrade(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_upgrade(game_state, structure) {
             return false;
         }
@@ -61,13 +62,13 @@ impl Upgradable for BugBase1Upgrader {
         true
     }
 
-    fn can_upgrade(self, game_state: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn can_upgrade(self, game_state: &GameState, structure: &mut Structure) -> bool {
         todo!()
     }
 }
 
 impl Upgradable for RefineryUpgrader {
-    fn upgrade(self, game_state: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn upgrade(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_upgrade(game_state, structure) {
             return false;
         }
@@ -79,7 +80,7 @@ impl Upgradable for RefineryUpgrader {
         true
     }
 
-    fn can_upgrade(self, _: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn can_upgrade(self, _: &GameState, structure: &mut Structure) -> bool {
         if !structure.activated {
             return false
         }
@@ -92,7 +93,7 @@ impl Upgradable for RefineryUpgrader {
 }
 
 impl Upgradable for MineUpgrader {
-    fn upgrade(self, game_state: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn upgrade(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_upgrade(game_state, structure) {
             return false;
         }
@@ -104,7 +105,7 @@ impl Upgradable for MineUpgrader {
         true
     }
 
-    fn can_upgrade(self, _: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn can_upgrade(self, _: &GameState, structure: &mut Structure) -> bool {
         if !structure.activated {
             return false
         }
@@ -117,7 +118,7 @@ impl Upgradable for MineUpgrader {
 }
 
 impl Upgradable for TurretUpgrader {
-    fn upgrade(self, game_state: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn upgrade(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_upgrade(game_state, structure) {
             return false;
         }
@@ -129,7 +130,7 @@ impl Upgradable for TurretUpgrader {
         true
     }
 
-    fn can_upgrade(self, _: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn can_upgrade(self, _: &GameState, structure: &mut Structure) -> bool {
         if !structure.activated {
             return false
         }
@@ -142,7 +143,7 @@ impl Upgradable for TurretUpgrader {
 }
 
 impl Upgradable for AtrileryUpgrader {
-    fn upgrade(self, game_state: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn upgrade(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_upgrade(game_state, structure) {
             return false;
         }
@@ -154,7 +155,7 @@ impl Upgradable for AtrileryUpgrader {
         true
     }
 
-    fn can_upgrade(self, _: crate::game::core::game::GameState, structure: &mut Structure) -> bool {
+    fn can_upgrade(self, _: &GameState, structure: &mut Structure) -> bool {
         if !structure.activated {
             return false
         }

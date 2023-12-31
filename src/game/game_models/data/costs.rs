@@ -74,5 +74,22 @@ pub fn get_costs() -> HashMap<StructureSelector, Vec<Resouce>> {
     hm.insert(StructureSelector::TechWall1, vec![
         Resouce::Gold, 
     ]);
+    hm.insert(StructureSelector::TechNuke, vec![
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Gold, 
+        Resouce::Metal, 
+        Resouce::Metal, 
+        Resouce::Metal, 
+        Resouce::Metal, 
+        Resouce::Metal, 
+    ]);
     hm
 }

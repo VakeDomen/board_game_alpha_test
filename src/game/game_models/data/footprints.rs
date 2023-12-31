@@ -61,5 +61,10 @@ pub fn get_footprints() -> HashMap<StructureSelector, Vec<Vec<bool>>> {
     hm.insert(StructureSelector::TechWall1, vec![
         vec![true]
     ]);
+    hm.insert(StructureSelector::TechNuke, vec![
+        vec![true, true, true],
+        vec![true, true, true],
+        vec![true, true, true],
+    ]);
     hm
 }
