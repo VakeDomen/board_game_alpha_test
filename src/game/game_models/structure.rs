@@ -1,9 +1,7 @@
 
 use serde::Serialize;
 
-use crate::game::core::game::GameState;
-
-use super::{resource::Resouce, tiles::{Placable, Upgradable}, stats::StructureStats};
+use super::{resource::Resouce, stats::StructureStats};
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
 pub enum StructureSelector {
@@ -43,19 +41,4 @@ pub struct StructureRecepie {
     pub footprint: Vec<Vec<bool>>,
     pub stats: StructureStats,
     pub activated_costs: Vec<Vec<Resouce>>,
-}
-
-
-impl Placable for StructureRecepie {
-    fn place(self, game_state: GameState, x: i32, y: i32) -> Option<Structure> {
-        todo!()
-    }
-
-    fn can_place_on(self, game_state: GameState, x: i32, y: i32) -> bool {
-        todo!()
-    }
-
-    fn has_enough_resources(self, game_state: GameState) -> bool {
-        todo!()
-    }
 }
