@@ -30,7 +30,7 @@ pub fn get_active_abilities() -> HashMap<StructureSelector, Option<Box<dyn Activ
 }
 
 impl ActiveAbility for TechNukeActive {
-    fn trigger(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_trigger(game_state, structure, &vec![Resouce::Metal, Resouce::Metal, Resouce::Metal]) {
             return false;
         }
@@ -55,7 +55,7 @@ impl ActiveAbility for TechNukeActive {
 }
 
 impl ActiveAbility for TechMarketActive {
-    fn trigger(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         let mut trigger_mode = 0;
         if self.can_trigger(game_state, structure, &vec![Resouce::Gold]) {
             trigger_mode = 1;
@@ -96,7 +96,7 @@ impl ActiveAbility for TechMarketActive {
 
 
 impl ActiveAbility for TechRefinery2Active {
-    fn trigger(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_trigger(game_state, structure, &vec![Resouce::Gold]) {
             return false;
         }
@@ -111,7 +111,7 @@ impl ActiveAbility for TechRefinery2Active {
 }
 
 impl ActiveAbility for TechRefinery1Active {
-    fn trigger(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_trigger(game_state, structure, &vec![Resouce::Gold]) {
             return false;
         }

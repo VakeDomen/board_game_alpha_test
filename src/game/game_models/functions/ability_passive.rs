@@ -32,7 +32,7 @@ pub fn get_passive_abilities() -> HashMap<StructureSelector, Option<Box<dyn Pass
 }
 
 impl PassiveAbility for TechBasePassive {
-    fn activate_passive(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
         //TODO: bonus on map edge
 
         game_state.tech_resources.push(Resouce::Gold);
@@ -43,7 +43,7 @@ impl PassiveAbility for TechBasePassive {
 }
 
 impl PassiveAbility for TechMine1Passive {
-    fn activate_passive(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
         //TODO: bonus on map edge
 
         game_state.tech_resources.push(Resouce::Gold);
@@ -53,7 +53,7 @@ impl PassiveAbility for TechMine1Passive {
 }
 
 impl PassiveAbility for TechMine2Passive {
-    fn activate_passive(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
         //TODO: bonus on map edge
 
         game_state.tech_resources.push(Resouce::Gold);
@@ -64,7 +64,7 @@ impl PassiveAbility for TechMine2Passive {
 }
 
 impl PassiveAbility for BugBase1Passive {
-    fn activate_passive(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
         //TODO: bonus on map edge
 
         game_state.bug_resources.push(Resouce::Egg);
@@ -73,7 +73,7 @@ impl PassiveAbility for BugBase1Passive {
 }
 
 impl PassiveAbility for BugBase2Passive {
-    fn activate_passive(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
         //TODO: bonus on map edge
 
         game_state.bug_resources.push(Resouce::Egg);
@@ -83,7 +83,7 @@ impl PassiveAbility for BugBase2Passive {
 }
 
 impl PassiveAbility for BugBase3Passive {
-    fn activate_passive(self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
         //TODO: bonus on map edge
 
         game_state.bug_resources.push(Resouce::Egg);

@@ -1,5 +1,7 @@
 
-use crate::game::game_models::types::{structure::Structure, resource::Resouce, map::Map};
+use std::mem;
+
+use crate::game::game_models::{types::{structure::Structure, resource::Resouce, map::Map}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
 
 use super::lobby::new_game::NewGame;
 
@@ -138,6 +140,51 @@ fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, Progre
 }
 
 fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    let upgraders = get_upgraders();
+    let passives = get_passive_abilities();
+    let actives = get_active_abilities();
+
+    // trigger passives
+    let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
+    for tile in &mut tiles {
+        if let Tile::Structure(structure) = tile {
+            if let Some(passive) = passives.get(&structure.structure_type) {
+                if let Some(passive) = passive {
+                    passive.activate_passive(state, structure);
+                }
+            }
+        }
+    }  
+    state.tiles = tiles; // Put the original tiles back.
+
+    // trigger actives
+    let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
+    for tile in &mut tiles {
+        if let Tile::Structure(structure) = tile {
+            if let Some(active) = actives.get(&structure.structure_type) {
+                if let Some(active) = active {
+                    active.trigger(state, structure);
+                }
+            }
+        }
+    }  
+    state.tiles = tiles; // Put the original tiles back.
+
+    // trigger upgrade structs
+    let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
+    for tile in &mut tiles {
+        if let Tile::Structure(structure) = tile {
+            if let Some(upgrader) = upgraders.get(&structure.structure_type) {
+                if let Some(upgrader) = upgrader {
+                    upgrader.upgrade(state, structure); // Now it's okay to borrow state mutably.
+                }
+            }
+        }
+    }  
+    state.tiles = tiles; // Put the original tiles back.
+
+    
+    
     state.turn_phase = TurnPhase::Main;
     Ok(None)
 }
