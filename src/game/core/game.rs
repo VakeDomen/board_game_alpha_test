@@ -1,3 +1,5 @@
+use crate::game::game_models::structure::Structure;
+
 use super::lobby::new_game::NewGame;
 
 
@@ -63,12 +65,9 @@ pub struct GameState {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Tile {
-    TechBase,
-    Road,
-    BugBase1,
-    BugBase2,
-    BugBase3,
-    BugSoldier1,
+    TechStructure(Structure),
+    BugStructure(Structure),
+    BugSoldier
 }
 
 impl Default for GameState {

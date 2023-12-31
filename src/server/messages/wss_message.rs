@@ -5,13 +5,13 @@ use tokio_tungstenite::tungstenite::Message;
 
 use crate::game::core::lobby::new_game::NewGame;
 
-use super::control_message::ControlMessage;
+use super::{control_commands::ControlCommand, game_commands::GameCommand};
 
 #[derive(Debug, Serialize)]
 pub enum WSSMessage {
     // from client
-    Game(String),
-    Control(ControlMessage),
+    Game(GameCommand),
+    Control(ControlCommand),
     Unknown,
 
     // to client
@@ -32,8 +32,8 @@ impl From<Message> for WSSMessage {
         };
 
         match message_string.as_str() {
-            _ if message_string.starts_with("GAME ") => Self::Game(message_string["GAME ".len()..].to_string()),
-            _ if message_string.starts_with("CONTROL ") => Self::Control(ControlMessage::from(message_string["CONTROL ".len()..].to_string())),
+            _ if message_string.starts_with("GAME ") => Self::Game(GameCommand::from(message_string["GAME ".len()..].to_string())),
+            _ if message_string.starts_with("CONTROL ") => Self::Control(ControlCommand::from(message_string["CONTROL ".len()..].to_string())),
             _ => Self::Unknown,
         }
     }

@@ -1,6 +1,8 @@
-use std::ops::Index;
-
-use crate::{storage::active::MATCHES, game::core::{lobby::{new_game::NewGame, match_state::MatchState}, game::{Game, GameState}}};
+use crate::{
+    storage::active::MATCHES, 
+    game::core::{lobby::{new_game::NewGame, match_state::MatchState}, 
+    game::Game}
+};
 
 
 

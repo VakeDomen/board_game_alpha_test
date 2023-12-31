@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-pub enum ControlMessage {
+pub enum ControlCommand {
     Authenticate(String),
     CreateGame(String),
     JoinGame(String),
@@ -9,7 +9,7 @@ pub enum ControlMessage {
     Unknown,
 }
 
-impl From<String> for ControlMessage {
+impl From<String> for ControlCommand {
     fn from(value: String) -> Self {
         match value.as_str() {
             _ if value.starts_with("AUTH ") => Self::Authenticate(value["AUTH ".len()..].to_string()),
