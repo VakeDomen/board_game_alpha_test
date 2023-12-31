@@ -3,11 +3,13 @@ use serde::Serialize;
 
 use crate::game::core::game::GameState;
 
-use super::{resource::Resouce, tiles::{Placable, Upgradable}};
+use super::{resource::Resouce, tiles::{Placable, Upgradable}, stats::StructureStats};
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
 pub enum StructureSelector {
-    BugBase,
+    BugBase1,
+    BugBase2,
+    BugBase3,
     TechBase,
     TechRoad,
     TechMine1,
@@ -22,12 +24,7 @@ pub enum StructureSelector {
     TechWall1,
 }
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
-pub struct StructureStats {
-    pub hp: i32,
-    pub attack: i32,
-    pub range: i32,
-}
+
 
 #[derive(Debug, Serialize, Clone, PartialEq)]
 pub struct Structure {

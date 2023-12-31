@@ -3,3 +3,7 @@ pub mod resource;
 pub mod recepies;
 pub mod tiles;
 pub mod upgrades;
+pub mod stats;
+pub mod footprints;
+pub mod costs;
+pub mod activation_costs;
