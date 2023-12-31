@@ -1,7 +1,10 @@
 
 use serde::Serialize;
 
-use super::{resource::Resouce, stats::StructureStats};
+use crate::game::game_models::data::stats::StructureStats;
+
+use super::resource::Resouce;
+
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
 pub enum StructureSelector {

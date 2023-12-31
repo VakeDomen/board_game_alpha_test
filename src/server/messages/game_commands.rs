@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::game::game_models::structure::StructureSelector;
+use crate::game::game_models::types::structure::StructureSelector;
+
 
 
 #[derive(Debug, Serialize)]

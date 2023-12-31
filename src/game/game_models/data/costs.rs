@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use super::{structure::StructureSelector, resource::Resouce};
+use crate::game::game_models::types::{resource::Resouce, structure::StructureSelector};
+
 
 pub fn get_costs() -> HashMap<StructureSelector, Vec<Resouce>> {
     let mut hm = HashMap::new();

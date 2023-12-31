@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use super::{structure::{StructureSelector, StructureRecepie}, stats::get_stats, activation_costs::get_activation_costs, footprints::get_footprints, costs::get_costs};
+use crate::game::game_models::types::structure::{StructureSelector, StructureRecepie};
+
+use super::{stats::get_stats, activation_costs::get_activation_costs, footprints::get_footprints, costs::get_costs};
+
 
 
 
 pub fn get_recepies() -> HashMap<StructureSelector, StructureRecepie> {
-    let stats = get_stats();
-    
     let mut recepies: HashMap<StructureSelector, StructureRecepie> = HashMap::new();
 
     recepies.insert(StructureSelector::BugBase1, construct_recepie(StructureSelector::BugBase1));

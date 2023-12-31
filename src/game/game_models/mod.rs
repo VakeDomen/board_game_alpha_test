@@ -1,9 +1,3 @@
-pub mod structure;
-pub mod resource;
-pub mod recepies;
-pub mod tiles;
-pub mod upgrades;
-pub mod stats;
-pub mod footprints;
-pub mod costs;
-pub mod activation_costs;
+pub mod data;
+pub mod functions;
+pub mod types;

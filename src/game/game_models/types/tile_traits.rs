@@ -12,3 +12,10 @@ pub trait Upgradable {
     fn upgrade(self, game_state: GameState, structure: &mut Structure) -> bool;
     fn can_upgrade(self, game_state: GameState, structure: &mut Structure) -> bool;
 }
+
+pub trait Acivatable {
+    fn activate(self, game_state: GameState, structure: &mut Structure) -> bool;
+    fn can_activate(self, game_state: GameState, structure: &mut Structure) -> bool;
+    fn trigger(self, game_state: GameState, structure: &mut Structure) -> bool;
+    fn can_trigger(self, game_state: GameState, structure: &mut Structure) -> bool;
+}

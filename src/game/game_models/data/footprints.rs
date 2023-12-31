@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use super::structure::StructureSelector;
+use crate::game::game_models::types::structure::StructureSelector;
+
 
 pub fn get_footprints() -> HashMap<StructureSelector, Vec<Vec<bool>>> {
     let mut hm = HashMap::new();

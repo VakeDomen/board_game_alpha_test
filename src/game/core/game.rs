@@ -1,4 +1,5 @@
-use crate::game::game_models::structure::Structure;
+
+use crate::game::game_models::types::structure::Structure;
 
 use super::lobby::new_game::NewGame;
 
@@ -65,9 +66,8 @@ pub struct GameState {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Tile {
-    TechStructure(Structure),
-    BugStructure(Structure),
-    BugSoldier
+    Structure(Structure),
+    Unit,
 }
 
 impl Default for GameState {

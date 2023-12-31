@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use super::structure::StructureSelector;
+use crate::game::game_models::types::structure::StructureSelector;
+
 
 #[derive(Debug, Serialize, Clone, PartialEq)]
 pub struct StructureStats {

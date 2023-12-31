@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 
-use super::{
-    tiles::Upgradable, 
-    structure::{Structure, StructureSelector}, 
-    resource::Resouce,
-};
+use crate::game::game_models::types::{structure::{StructureSelector, Structure}, tile_traits::Upgradable, resource::Resouce};
+
 
 
 pub struct TurretUpgrader;
