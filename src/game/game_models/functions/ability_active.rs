@@ -47,9 +47,7 @@ impl ActiveAbility for TechNukeActive {
             Some(y) => y.parse().unwrap(),
             None => return false,
         };
-
         todo!("Shoot nuke");
-
         true
     }
 }
@@ -115,11 +113,9 @@ impl ActiveAbility for TechRefinery1Active {
         if !self.can_trigger(game_state, structure, &vec![Resouce::Gold]) {
             return false;
         }
-
         structure.activated = false;
         structure.activation_resources = vec![];
         game_state.tech_resources.push(Resouce::Metal);
-
         true
     }
 }

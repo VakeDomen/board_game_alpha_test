@@ -8,7 +8,6 @@ pub struct TurretUpgrader;
 pub struct AtrileryUpgrader;
 pub struct MineUpgrader;
 pub struct RefineryUpgrader;
-
 pub struct BugBase1Upgrader;
 pub struct BugBase2Upgrader;
 
@@ -40,9 +39,7 @@ impl Upgradable for BugBase2Upgrader {
         if !&self.can_upgrade(game_state, structure) {
             return false;
         }
-
         structure.structure_type = StructureSelector::BugBase3;
-
         true
     }
 
@@ -56,9 +53,7 @@ impl Upgradable for BugBase1Upgrader {
         if !&self.can_upgrade(game_state, structure) {
             return false;
         }
-
         structure.structure_type = StructureSelector::BugBase2;
-
         true
     }
 
@@ -72,11 +67,9 @@ impl Upgradable for RefineryUpgrader {
         if !&self.can_upgrade(game_state, structure) {
             return false;
         }
-
         structure.activated = false;
         structure.activation_resources = vec![];
         structure.structure_type = StructureSelector::TechRefinery2;
-
         true
     }
 
@@ -97,11 +90,9 @@ impl Upgradable for MineUpgrader {
         if !&self.can_upgrade(game_state, structure) {
             return false;
         }
-
         structure.activated = false;
         structure.activation_resources = vec![];
         structure.structure_type = StructureSelector::TechMine2;
-
         true
     }
 
@@ -122,11 +113,9 @@ impl Upgradable for TurretUpgrader {
         if !&self.can_upgrade(game_state, structure) {
             return false;
         }
-
         structure.activated = false;
         structure.activation_resources = vec![];
         structure.structure_type = StructureSelector::TechTurret2;
-
         true
     }
 
@@ -147,11 +136,9 @@ impl Upgradable for AtrileryUpgrader {
         if !&self.can_upgrade(game_state, structure) {
             return false;
         }
-
         structure.activated = false;
         structure.activation_resources = vec![];
         structure.structure_type = StructureSelector::TechArtillery2;
-
         true
     }
 
