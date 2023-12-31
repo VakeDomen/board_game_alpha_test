@@ -1,5 +1,5 @@
 
-use crate::game::game_models::types::{structure::Structure, resource::Resouce};
+use crate::game::game_models::types::{structure::Structure, resource::Resouce, map::Map};
 
 use super::lobby::new_game::NewGame;
 
@@ -64,6 +64,7 @@ pub struct GameState {
     pub move_que: Vec<Move>,
     pub tech_resources: Vec<Resouce>,
     pub bug_resources: Vec<Resouce>,
+    pub map: Map,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -83,7 +84,7 @@ impl Default for GameState {
             turn_phase: TurnPhase::Setup,
             tech_resources: vec![],
             bug_resources: vec![Resouce::Nest],
-            
+            map: vec![vec![0; 17]; 34],
         }
     }
 }

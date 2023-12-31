@@ -4,7 +4,6 @@ use crate::game::{game_models::types::{structure::{StructureSelector, Structure}
 
 pub struct TechRefinery1Active;
 pub struct TechRefinery2Active;
-
 pub struct TechMarketActive;
 pub struct TechNukeActive;
 
@@ -18,15 +17,15 @@ pub fn get_active_abilities() -> HashMap<StructureSelector, Option<Box<dyn Activ
     hm.insert(StructureSelector::TechRoad, None);
     hm.insert(StructureSelector::TechMine1, None);
     hm.insert(StructureSelector::TechMine2, None);
-    hm.insert(StructureSelector::TechRefinery1, None);
-    hm.insert(StructureSelector::TechRefinery2, None);
-    hm.insert(StructureSelector::TechMarket, None);
+    hm.insert(StructureSelector::TechRefinery1, Some(Box::new(TechRefinery1Active{})));
+    hm.insert(StructureSelector::TechRefinery2, Some(Box::new(TechRefinery2Active{})));
+    hm.insert(StructureSelector::TechMarket, Some(Box::new(TechMarketActive{})));
     hm.insert(StructureSelector::TechTurret1, None);
     hm.insert(StructureSelector::TechTurret2, None);
     hm.insert(StructureSelector::TechArtillery1, None);
     hm.insert(StructureSelector::TechArtillery2, None);
     hm.insert(StructureSelector::TechWall1, None);
-    hm.insert(StructureSelector::TechNuke, None);
+    hm.insert(StructureSelector::TechNuke, Some(Box::new(TechNukeActive{})));
     hm
 }
 
