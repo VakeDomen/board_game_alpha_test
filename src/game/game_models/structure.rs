@@ -32,7 +32,6 @@ pub struct Structure {
     pub id: i32,
     pub x: i32,
     pub y: i32,
-    pub stats: StructureStats,
     pub activated: bool,
     pub activation_resources: Vec<Resouce>,
     pub exhausted: bool,
@@ -48,7 +47,7 @@ pub struct StructureRecepie {
 
 
 impl Placable for StructureRecepie {
-    fn place(self, game_state: GameState) -> Option<Structure> {
+    fn place(self, game_state: GameState, x: i32, y: i32) -> Option<Structure> {
         todo!()
     }
 
