@@ -120,7 +120,7 @@ impl ActiveAbility for TechRefinery1Active {
     }
 }
 
-pub fn contains_required_resources(game_resources: &[Resouce], required_resources: &[Resouce]) -> bool {
+pub fn contains_required_resources(game_resources: &Vec<Resouce>, required_resources: &Vec<Resouce>) -> bool {
     let game_counts = to_counts(game_resources);
     let required_counts = to_counts(required_resources);
 
@@ -129,7 +129,7 @@ pub fn contains_required_resources(game_resources: &[Resouce], required_resource
 }
 
 // Function to convert a Vec<Resouce> into a HashMap<Resouce, i32> to count occurrences
-fn to_counts(resources: &[Resouce]) -> HashMap<Resouce, i32> {
+fn to_counts(resources: &Vec<Resouce>) -> HashMap<Resouce, i32> {
     let mut counts = HashMap::new();
     for resource in resources {
         *counts.entry(resource.clone()).or_insert(0) += 1;
@@ -138,7 +138,7 @@ fn to_counts(resources: &[Resouce]) -> HashMap<Resouce, i32> {
 }
 
 
-pub fn remove_resources(game_resources: &mut Vec<Resouce>, required_resources: &[Resouce]) -> bool {
+pub fn remove_resources(game_resources: &mut Vec<Resouce>, required_resources: &Vec<Resouce>) -> bool {
     let mut required_counts = to_counts(required_resources);
 
     // Check if we have enough resources to remove
