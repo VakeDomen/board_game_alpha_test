@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::game::game_models::types::structure::StructureSelector;
+use crate::game::game_models::types::{structure::StructureSelector, unit::UnitSelector};
 
 
 
@@ -9,6 +9,7 @@ pub enum GameCommand {
     GetState,
     BaseSetup(i32, i32),
     PlaceStructure(StructureSelector, i32, i32),
+    PlaceUnit(UnitSelector, i32, i32, i32),
     NextPhase,
     Undo,
     InvalidCommand(String),
@@ -56,7 +57,30 @@ impl From<String> for GameCommand {
                     };
                     Self::PlaceStructure(structure_selector, x, y)
                 }
-            }
+            },
+            "PlaceUnit" => {
+                if tokens.len() != 5 {
+                    Self::InvalidCommand(format!("5 tokens needed :{:#?}", tokens))
+                } else {
+                    let unit_selector = match parse_unit_selector(tokens[1]) {
+                        Some(s) => s,
+                        None => return Self::InvalidCommand("Can't parse unit selector".to_string()),
+                    };
+                    let x: i32 = match tokens[2].parse() {
+                        Ok(n) => n,
+                        Err(_) => return Self::InvalidCommand("Can't parse X".to_string()),
+                    };
+                    let y: i32 = match tokens[3].parse() {
+                        Ok(n) => n,
+                        Err(_) => return Self::InvalidCommand("Can't parse Y".to_string()),
+                    };
+                    let rotat: i32 = match tokens[4].parse() {
+                        Ok(n) => n,
+                        Err(_) => return Self::InvalidCommand("Can't parse rotation".to_string()),
+                    };
+                    Self::PlaceUnit(unit_selector, x, y, rotat)
+                }
+            },
             "NextPhase" => Self::NextPhase,
             "Undo" => Self::Undo,
             _ => Self::InvalidCommand("Command not found".to_string()),
@@ -82,6 +106,17 @@ fn parse_structure_selector(token: &str) -> Option<StructureSelector> {
         "TechArtillery2" => Some(StructureSelector::TechArtillery2),
         "TechWall1" => Some(StructureSelector::TechWall1),
         "TechNuke" => Some(StructureSelector::TechNuke),
+        _ => None,
+    }
+}
+fn parse_unit_selector(token: &str) -> Option<UnitSelector> {
+    match token {
+        "BugSoldierLV1" => Some(UnitSelector::BugSoldierLV1),
+        "BugSoldierLV2" => Some(UnitSelector::BugSoldierLV2),
+        "BugSoldierLV3" => Some(UnitSelector::BugSoldierLV3),
+        "BugEliteMelee" => Some(UnitSelector::BugEliteMelee),
+        "BugEliteRanged" => Some(UnitSelector::BugEliteRanged),
+        
         _ => None,
     }
 }

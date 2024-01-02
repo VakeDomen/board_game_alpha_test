@@ -4,10 +4,32 @@ use std::mem;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
-use crate::{
-    game::game_models::{types::{tile_traits::{Tile, NewTile}, structure::{NewStructure, StructureSelector}, map::{MapError, Interactor, TileOption}, unit::UnitSelector}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::{get_active_abilities, remove_resources}, placers::get_placers}, data::structures::{costs::get_costs, activation_costs::get_activation_costs}}, main};
-
-use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove, TechMainPhaseMove, BugMainPhaseMove}, game_state::GameState};
+use crate::game::game_models::{
+    types::{
+        tile_traits::{Tile, NewTile}, 
+        structure::{NewStructure, StructureSelector}, 
+        map::{MapError, Interactor, TileOption}, 
+        unit::{UnitSelector, NewUnit, self}
+    }, 
+    functions::{
+        upgrades::get_upgraders, 
+        ability_passive::get_passive_abilities, 
+        ability_active::{get_active_abilities, remove_resources}
+    }, 
+    data::{
+        structures::{
+            costs::get_costs, 
+            activation_costs::get_activation_costs, 
+            placers::get_placers
+        },
+        units::placers::get_placers as unit_placers,
+}
+};
+use super::{
+    lobby::new_game::NewGame, 
+    types::moves::{BugMove, Move, TechMove, TechMainPhaseMove, BugMainPhaseMove}, 
+    game_state::GameState
+};
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -129,7 +151,9 @@ fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, Progre
                     }
 
                     if let BugMainPhaseMove::PlaceUnit(unit_selector, x, y, rotation) = main_move {
-                       
+                        if let Err(value) = place_unit(unit_selector, rotation, state, x, y) {
+                            return Err(value);
+                        }
                     }
                 }
             }
@@ -139,6 +163,35 @@ fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, Progre
     state.move_que = que;
     state.turn_phase = TurnPhase::End;
     Ok(None)
+}
+
+fn place_unit(
+    unit_selector: &mut UnitSelector, 
+    rotation: &mut i32, 
+    state: &mut GameState, 
+    x: &mut i32, 
+    y: &mut i32
+) -> Result<(), ProgressionError> {
+    let placers = unit_placers();
+    if let Some(placer) = placers.get(&unit_selector) {
+        if let Some(placer) = placer {
+            // create structure
+            let id = Uuid::new_v4().to_string();
+            let unit = NewUnit {
+                unit_type: unit_selector.clone(),
+                id: id.clone(),
+                x: None,
+                y: None,
+                rotated: (*rotation == 1),
+            };
+            // place it
+            match placer.place(NewTile::Unit(unit), state, *x, *y) {
+                Ok(s) => state.tiles.insert(id, s),
+                Err(e) => return Err(ProgressionError::CantPlaceUnit(e)),
+            };
+        }
+    }
+    Ok(())
 }
 
 fn build_structure(
@@ -272,8 +325,8 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
 
     // check if T1 nests need to be placed
     let placers = get_placers();
-    for row in {0..state.map.len()} {
-        for col in {0..state.map[row].len()} {
+    for row in 0..state.map.len() {
+        for col in 0..state.map[row].len() {
             if !state.map[row][col].is_empty() {
                 continue;
             }
@@ -422,4 +475,5 @@ pub enum ProgressionError {
     CantPlaceBase(MapError),
     CantFindStructure(String),
     CantActivateAbility(String),
+    CantPlaceUnit(MapError),
 }

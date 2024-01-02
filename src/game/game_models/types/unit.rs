@@ -13,8 +13,9 @@ pub enum UnitSelector {
 
 #[derive(Debug)]
 pub struct NewUnit {
-    pub structure_type: UnitSelector,
+    pub unit_type: UnitSelector,
     pub id: String,
+    pub rotated: bool,
     pub x: Option<i32>,
     pub y: Option<i32>,
 }
@@ -24,7 +25,21 @@ pub struct NewUnit {
 pub struct Unit {
     pub unit_type: UnitSelector,
     pub id: String,
+    pub rotated: bool,
     pub x: i32,
     pub y: i32,
     pub exhausted: bool,
+}
+
+impl From<NewUnit> for Unit {
+    fn from(nu: NewUnit) -> Self {
+        Self {
+            unit_type: nu.unit_type,
+            id: nu.id,
+            rotated: nu.rotated,
+            x: nu.x.unwrap(),
+            y: nu.y.unwrap(),
+            exhausted: false,
+        }
+    }
 }

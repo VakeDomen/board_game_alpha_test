@@ -226,4 +226,6 @@ pub enum MapError {
     NotEnougyProximitySpace,
     ConstructionOutOfBounds,
     IncorrectPlacer,
+    NotConnectedToNest,
+    NotEnoughResources,
 }
