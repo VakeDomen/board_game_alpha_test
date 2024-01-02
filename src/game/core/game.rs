@@ -59,7 +59,7 @@ impl Game {
             TurnPhase::End => progress_from_end(&mut current_state),
         };
         let potenital_next_state = match result {
-            Ok(potenital_next_state) => potenital_next_state,
+            Ok(next_state_option) => next_state_option,
             Err(e) => {
                 println!("Error progressing to next state: {:#?}", e);
                 return Err(e);
@@ -77,15 +77,17 @@ fn progress_from_end(state: &mut GameState) -> Result<Option<GameState>, Progres
 
     // next player turn in the next state
     new_state.turn_phase = TurnPhase::Dmg;
+    new_state.move_que = vec![];
+    new_state.executed_moves = vec![];
+    new_state.turn += 1;
+
     if state.player_turn == Player::First {
         new_state.player_turn = Player::Second;
     } else {
         new_state.player_turn = Player::First;
     }
 
-
     // check for game end
-
 
     Ok(Some(new_state))
 }
@@ -100,13 +102,26 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
     let passives = get_passive_abilities();
     let actives = get_active_abilities();
 
+    let bug_selectors = [
+        StructureSelector::BugBase1,
+        StructureSelector::BugBase2,
+        StructureSelector::BugBase3,
+    ];
+
+
+
     // trigger passives
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
     for (_, tile) in &mut tiles {
         if let Tile::Structure(structure) = tile {
-            if let Some(passive) = passives.get(&structure.structure_type) {
-                if let Some(passive) = passive {
-                    passive.activate_passive(state, structure);
+            if 
+                (state.player_turn == Player::First && !bug_selectors.contains(&structure.structure_type)) ||
+                (state.player_turn == Player::Second && bug_selectors.contains(&structure.structure_type))
+            {
+                if let Some(passive) = passives.get(&structure.structure_type) {
+                    if let Some(passive) = passive {
+                        passive.activate_passive(state, structure);
+                    }
                 }
             }
         }
@@ -117,9 +132,14 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
     for (_, tile) in &mut tiles {
         if let Tile::Structure(structure) = tile {
-            if let Some(active) = actives.get(&structure.structure_type) {
-                if let Some(active) = active {
-                    active.trigger(state, structure);
+            if 
+                (state.player_turn == Player::First && !bug_selectors.contains(&structure.structure_type)) ||
+                (state.player_turn == Player::Second && bug_selectors.contains(&structure.structure_type))
+            {
+                if let Some(active) = actives.get(&structure.structure_type) {
+                    if let Some(active) = active {
+                        active.trigger(state, structure);
+                    }
                 }
             }
         }
@@ -130,9 +150,14 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
     for (_, tile) in &mut tiles {
         if let Tile::Structure(structure) = tile {
-            if let Some(upgrader) = upgraders.get(&structure.structure_type) {
-                if let Some(upgrader) = upgrader {
-                    upgrader.upgrade(state, structure); // Now it's okay to borrow state mutably.
+            if 
+                (state.player_turn == Player::First && !bug_selectors.contains(&structure.structure_type)) ||
+                (state.player_turn == Player::Second && bug_selectors.contains(&structure.structure_type))
+            {
+                if let Some(upgrader) = upgraders.get(&structure.structure_type) {
+                    if let Some(upgrader) = upgrader {
+                        upgrader.upgrade(state, structure); // Now it's okay to borrow state mutably.
+                    }
                 }
             }
         }

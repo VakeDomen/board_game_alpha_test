@@ -33,7 +33,7 @@ impl Default for GameState {
             executed_moves: vec![],
             turn_phase: TurnPhase::Setup,
             tech_resources: vec![],
-            bug_resources: vec![Resouce::Nest],
+            bug_resources: vec![],
             map: vec![vec!["".to_string(); 17]; 34],
         }
     }

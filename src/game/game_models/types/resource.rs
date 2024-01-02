@@ -4,7 +4,6 @@ use serde::{Serialize, Deserialize};
 pub enum Resouce {
     Gold,
     Metal,
-    Nest,
     Egg,
     Soul
 }

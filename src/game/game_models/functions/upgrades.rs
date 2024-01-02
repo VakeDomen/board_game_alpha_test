@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::Upgradable, resource::Resouce}, core::game_state::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::Upgradable, resource::Resouce, map::Extrcator}, core::game_state::GameState};
 
 
 
@@ -44,7 +44,7 @@ impl Upgradable for BugBase2Upgrader {
     }
 
     fn can_upgrade(&self, game_state: &GameState, structure: &mut Structure) -> bool {
-        todo!()
+        false
     }
 }
 
@@ -58,7 +58,7 @@ impl Upgradable for BugBase1Upgrader {
     }
 
     fn can_upgrade(&self, game_state: &GameState, structure: &mut Structure) -> bool {
-        todo!()
+        false
     }
 }
 
