@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resouce, map::Interactor}, core::game_state::GameState};
+use crate::game::{game_models::{types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resouce, map::Interactor}, data::structures::recepies::get_recepie}, core::game_state::GameState};
 
 pub struct TechRefinery1Active;
 pub struct TechRefinery2Active;
@@ -40,7 +40,14 @@ impl ActiveAbility for BugBase3Active {
         }
 
         game_state.bug_resources.push(Resouce::GiantEgg);
-        todo!("Downgrade base");
+
+        structure.structure_type = StructureSelector::BugBase2;
+        game_state.map.remove_tile(structure.id.clone());
+        let recepie = get_recepie(&structure.structure_type);
+        for (location, _) in game_state.map.get_footprint_tiles(structure.x, structure.y, &recepie.footprint) {
+            game_state.map[location.0][location.1] = structure.id.to_string();
+        }
+
         true
     }
 }
@@ -50,6 +57,9 @@ impl ActiveAbility for TechNukeActive {
         if !self.can_trigger(game_state, structure, &vec![Resouce::Metal, Resouce::Metal, Resouce::Metal]) {
             return false;
         }
+
+        structure.activated = false;
+        structure.activation_resources = vec![];
 
         let x = structure.additional_data.get("nuke_target_x");
         let y = structure.additional_data.get("nuke_target_y");
@@ -86,18 +96,14 @@ impl ActiveAbility for TechMarketActive {
             
         // deconstruct building
         if trigger_mode == 1 {
-            let deconstruct_structure_id = structure.additional_data.get("deconstruct_id");
+            let deconstruct_structure_id = structure.additional_data.remove("deconstruct_id");
             let deconstruct_structure_id = match deconstruct_structure_id {
                 Some(id) => id,
                 None => return false,
             };
 
-            let id = structure.additional_data.remove("deconstruct_id");
-            let id = match id {
-                Some(id) => id,
-                None => return false,
-            };
-            return game_state.map.remove_tile(id);
+            game_state.tiles.remove(&deconstruct_structure_id);
+            return game_state.map.remove_tile(deconstruct_structure_id);
         }
 
         // sell metal

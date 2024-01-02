@@ -1,9 +1,3 @@
-use std::{collections::HashMap, vec};
-
-use crate::game::game_models::data::structures::{recepies::get_recepie, spaced_placements::get_spaced_placements};
-
-use super::{structure::{Structure, StructureSelector, NewStructure}, tile_traits::Tile};
-
 pub type Map = Vec<Vec<String>>;
 
 
@@ -23,6 +17,7 @@ pub trait Interactor {
     fn get_tile_adjecent_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_tile_adjecent_cornered_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
+    fn get_rotated_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
     fn get_footprint_tiles_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_adjacent_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)>;
 
@@ -133,6 +128,39 @@ impl Interactor for Map {
                 // Calculate the actual x and y coordinates on the map
                 let current_x = x as usize + dx;
                 let current_y = y as usize + dy;
+
+                // Determine the map location and tile option
+                let location = (current_x, current_y);
+                let tile_option = if 
+                    current_x >= self.len() || 
+                    current_y >= self[0].len() 
+                {
+                    TileOption::OutOfBounds
+                } else if part_of_footprint {
+                    match self[current_x][current_y].as_str() {
+                        "" => TileOption::None,
+                        id => TileOption::Id(id.to_string()),
+                    }
+                } else {
+                    continue; // If the footprint is false, we don't need to record the tile
+                };
+
+                tiles.push((location, tile_option));
+            }
+        }
+
+        tiles
+    }
+
+
+    fn get_rotated_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)> {
+        let mut tiles: Vec<(MapLocation, TileOption)> = Vec::new();
+
+        for (dy, row) in footprint.iter().enumerate() {
+            for (dx, &part_of_footprint) in row.iter().enumerate() {
+                // Calculate the actual x and y coordinates on the map
+                let current_x = x as usize + dy;
+                let current_y = y as usize + dx;
 
                 // Determine the map location and tile option
                 let location = (current_x, current_y);
