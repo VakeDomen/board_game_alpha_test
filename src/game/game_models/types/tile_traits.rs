@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::game::{game_models::functions::ability_active::{contains_required_resources, remove_resources}, core::game_state::GameState};
 
 use super::{structure::Structure, resource::Resouce};
 
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum Tile {
     Structure(Structure),
     Unit,

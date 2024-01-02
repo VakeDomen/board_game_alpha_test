@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 
+use serde::Serialize;
+
 use crate::game::game_models::types::{resource::Resouce, map::Map, tile_traits::Tile};
 
 use super::{game::{Player, TurnPhase}, types::moves::Move};
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct GameState {
     pub player_turn: Player,
     pub winner: Option<Player>,

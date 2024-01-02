@@ -16,6 +16,7 @@ pub enum WSSMessage {
 
     // to client
     Success(bool),
+    Error(String),
     NewGame(NewGame),
     Unauthorized,
     NotEnoughPlayers,

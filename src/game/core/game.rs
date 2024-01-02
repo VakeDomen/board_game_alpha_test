@@ -1,6 +1,7 @@
 
 use std::mem;
 
+use serde::Serialize;
 use uuid::Uuid;
 
 use crate::game::game_models::{types::{tile_traits::Tile, structure::{NewStructure, StructureSelector}, map::StructurePlacer}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
@@ -8,7 +9,7 @@ use crate::game::game_models::{types::{tile_traits::Tile, structure::{NewStructu
 use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove}, game_state::GameState};
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Game {
     pub player1: String,
     pub player2: String,
@@ -27,7 +28,7 @@ impl From<NewGame> for Game {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum Player {
     First,
     Second,
@@ -35,7 +36,7 @@ pub enum Player {
 
 
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum TurnPhase {
     Setup,
     Dmg,
