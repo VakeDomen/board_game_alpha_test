@@ -1,4 +1,4 @@
-use crate::game::{core::game::GameState, game_models::functions::ability_active::{contains_required_resources, remove_resources}};
+use crate::game::{game_models::functions::ability_active::{contains_required_resources, remove_resources}, core::game_state::GameState};
 
 use super::{structure::Structure, resource::Resouce};
 

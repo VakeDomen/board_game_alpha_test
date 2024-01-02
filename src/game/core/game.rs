@@ -1,9 +1,9 @@
 
 use std::mem;
 
-use crate::game::game_models::{types::{structure::Structure, resource::Resouce, map::Map}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
+use crate::game::game_models::{types::structure::Structure, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
 
-use super::lobby::new_game::NewGame;
+use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove}, game_state::GameState};
 
 
 #[derive(Debug, Clone)]
@@ -31,21 +31,7 @@ pub enum Player {
     Second,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum Move {
-    Tech(TechMove),
-    Bug(BugMove),
-}
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum TechMove {
-    SetupBase(i32, i32),
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum BugMove {
-    SetupBase(i32, i32),
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TurnPhase {
@@ -56,40 +42,13 @@ pub enum TurnPhase {
     End,
 }
 
-#[derive(Debug, Clone)]
-pub struct GameState {
-    pub player_turn: Player,
-    pub winner: Option<Player>,
-    pub turn_phase: TurnPhase,
-    pub turn: i32,
-    pub tiles: Vec<Tile>,
-    pub move_que: Vec<Move>,
-    pub tech_resources: Vec<Resouce>,
-    pub bug_resources: Vec<Resouce>,
-    pub map: Map,
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Tile {
     Structure(Structure),
     Unit,
 }
 
-impl Default for GameState {
-    fn default() -> Self {
-        Self { 
-            player_turn: Player::First, 
-            turn: 0, 
-            winner: None,
-            tiles: vec![], 
-            move_que: vec![], 
-            turn_phase: TurnPhase::Setup,
-            tech_resources: vec![],
-            bug_resources: vec![Resouce::Nest],
-            map: vec![vec![0; 17]; 34],
-        }
-    }
-}
+
 
 impl Game {
     fn progress_state(mut self) -> Result<(), ProgressionError> {
@@ -112,7 +71,6 @@ impl Game {
             self.states.push(state);
         }
         Ok(())
-
     }
 }
 
@@ -146,7 +104,7 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
 
     // trigger passives
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
-    for tile in &mut tiles {
+    for (_, tile) in &mut tiles {
         if let Tile::Structure(structure) = tile {
             if let Some(passive) = passives.get(&structure.structure_type) {
                 if let Some(passive) = passive {
@@ -159,7 +117,7 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
 
     // trigger actives
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
-    for tile in &mut tiles {
+    for (_, tile) in &mut tiles {
         if let Tile::Structure(structure) = tile {
             if let Some(active) = actives.get(&structure.structure_type) {
                 if let Some(active) = active {
@@ -172,7 +130,7 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
 
     // trigger upgrade structs
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
-    for tile in &mut tiles {
+    for (_, tile) in &mut tiles {
         if let Tile::Structure(structure) = tile {
             if let Some(upgrader) = upgraders.get(&structure.structure_type) {
                 if let Some(upgrader) = upgrader {
@@ -182,7 +140,6 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
         }
     }  
     state.tiles = tiles; // Put the original tiles back.
-
     
     
     state.turn_phase = TurnPhase::Main;
@@ -205,7 +162,7 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
     if state.player_turn == Player::First {
         for player_move in state.move_que.iter() {
             if let Move::Tech(m) = player_move {
-                if let TechMove::SetupBase(x, y) = m {
+                if let TechMove::SetupMove(x, y) = m {
                     setup_move = true;
                 }
             }
@@ -215,7 +172,7 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
     if state.player_turn == Player::Second {
         for player_move in state.move_que.iter() {
             if let Move::Bug(m) = player_move {
-                if let BugMove::SetupBase(x, y) = m {
+                if let BugMove::SetupMove(x, y) = m {
                     setup_move = true;
                 }
             }

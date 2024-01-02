@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resouce}, core::game::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resouce}, core::game_state::GameState};
 
 pub struct TechRefinery1Active;
 pub struct TechRefinery2Active;
