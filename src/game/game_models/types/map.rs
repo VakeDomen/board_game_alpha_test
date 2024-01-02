@@ -1,6 +1,6 @@
 use std::{collections::HashMap, vec};
 
-use crate::game::game_models::data::{recepies::get_recepie, spaced_placements::get_spaced_placements};
+use crate::game::game_models::data::structures::{recepies::get_recepie, spaced_placements::get_spaced_placements};
 
 use super::{structure::{Structure, StructureSelector, NewStructure}, tile_traits::Tile};
 

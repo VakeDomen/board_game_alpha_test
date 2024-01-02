@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::game::game_models::data::stats::StructureStats;
+use crate::game::game_models::data::structures::stats::StructureStats;
 
 use super::resource::Resouce;
 
