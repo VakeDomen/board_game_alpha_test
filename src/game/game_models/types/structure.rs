@@ -1,14 +1,14 @@
 
 use std::collections::HashMap;
 
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 use crate::game::game_models::data::stats::StructureStats;
 
 use super::resource::Resouce;
 
 
-#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash, Deserialize)]
 pub enum StructureSelector {
     BugBase1,
     BugBase2,
@@ -37,7 +37,7 @@ pub struct NewStructure {
 }
 
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
 pub struct Structure {
     pub structure_type: StructureSelector,
     pub id: String,

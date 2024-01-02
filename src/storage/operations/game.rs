@@ -75,3 +75,15 @@ pub fn add_to_storage(game: MatchState) {
     let mut games = MATCHES.lock().unwrap();
     games.push(game);
 }
+
+pub fn get_running_game_by_name(game_name: &str) -> Option<Game> {
+    let matches = MATCHES.lock().unwrap();
+    for game in matches.iter() {
+        if let MatchState::Running(g) = game {
+            if g.name == game_name {
+                return Some(g.clone());
+            }
+        }
+    }
+    None
+}

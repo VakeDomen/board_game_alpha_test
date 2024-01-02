@@ -3,14 +3,14 @@ use serde_any::Format;
 use tokio_tungstenite::tungstenite::Message;
 
 
-use crate::game::core::lobby::new_game::NewGame;
+use crate::game::core::{lobby::new_game::NewGame, game::Game};
 
 use super::{control_commands::ControlCommand, game_commands::GameCommand};
 
 #[derive(Debug, Serialize)]
 pub enum WSSMessage {
     // from client
-    Game(GameCommand),
+    Game(String, GameCommand),
     Control(ControlCommand),
     Unknown,
 
@@ -18,6 +18,7 @@ pub enum WSSMessage {
     Success(bool),
     Error(String),
     NewGame(NewGame),
+    State(Game),
     Unauthorized,
     NotEnoughPlayers,
 }
@@ -32,11 +33,27 @@ impl From<Message> for WSSMessage {
             },
         };
 
-        match message_string.as_str() {
-            _ if message_string.starts_with("GAME ") => Self::Game(GameCommand::from(message_string["GAME ".len()..].to_string())),
-            _ if message_string.starts_with("CONTROL ") => Self::Control(ControlCommand::from(message_string["CONTROL ".len()..].to_string())),
-            _ => Self::Unknown,
+        // parse game command
+        if message_string.starts_with("GAME ") {
+            let tokens: Vec<&str> = message_string.splitn(3, ' ').collect();
+            if tokens.len() < 3 {
+                println!("Invalid GAME command format.");
+                return Self::Unknown;
+            }
+
+            let game_name = tokens[1].to_string();
+            let command_str = tokens[2].to_string();
+            let command = GameCommand::from(command_str);
+
+            return Self::Game(game_name, command);
+        } 
+
+        // parse control command
+        if message_string.starts_with("CONTROL ") {
+            return Self::Control(ControlCommand::from(message_string["CONTROL ".len()..].to_string()));
         }
+
+        Self::Unknown
     }
 }
 

@@ -3,12 +3,12 @@ use crate::{
     server::messages::{wss_message::WSSMessage, control_commands::ControlCommand, game_commands::GameCommand}
 };
 
-use super::control_message::{create_game, join_game, start_game};
+use super::{control_message::{create_game, join_game, start_game}, game_message::get_state};
 
 
 pub fn handle(msg: WSSMessage, socket_id: String) -> WSSMessage {
     match msg {
-        WSSMessage::Game(g) => handle_game_message(g),
+        WSSMessage::Game(name, g) => handle_game_message(name, g),
         WSSMessage::Control(c) => handle_control_message(c, socket_id),
         _ => return WSSMessage::Unknown,
     }
@@ -24,9 +24,9 @@ fn handle_control_message(msg: ControlCommand, socket_id: String) -> WSSMessage 
     }
 }
 
-fn handle_game_message(msg: GameCommand) -> WSSMessage {
+fn handle_game_message(game_name: String, msg: GameCommand) -> WSSMessage {
     match msg {
-        GameCommand::GetState => todo!(),
+        GameCommand::GetState => get_state(game_name, msg),
         GameCommand::InvalidCommand(e) => WSSMessage::Error(e),
         _ => WSSMessage::Success(false),
     }

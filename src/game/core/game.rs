@@ -1,7 +1,7 @@
 
 use std::mem;
 
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 use crate::game::game_models::{types::{tile_traits::Tile, structure::{NewStructure, StructureSelector}, map::StructurePlacer}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
@@ -9,8 +9,9 @@ use crate::game::game_models::{types::{tile_traits::Tile, structure::{NewStructu
 use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove}, game_state::GameState};
 
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Game {
+    pub name: String,
     pub player1: String,
     pub player2: String,
     pub states: Vec<GameState>,
@@ -20,6 +21,7 @@ impl From<NewGame> for Game {
     fn from(ng: NewGame) -> Self {
         let player2 = ng.player2.unwrap();
         Game {
+            name: ng.name,
             player1: ng.player1,
             player2,
             states: vec![GameState::default()],
@@ -28,7 +30,7 @@ impl From<NewGame> for Game {
 }
 
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Player {
     First,
     Second,
@@ -36,7 +38,7 @@ pub enum Player {
 
 
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TurnPhase {
     Setup,
     Dmg,
