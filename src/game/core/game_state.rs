@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::game::game_models::types::{resource::Resouce, map::Map};
+use crate::game::game_models::types::{resource::Resouce, map::Map, tile_traits::Tile};
 
-use super::{game::{Player, TurnPhase, Tile}, types::moves::Move};
+use super::{game::{Player, TurnPhase}, types::moves::Move};
 
 
 #[derive(Debug, Clone)]
@@ -32,7 +32,7 @@ impl Default for GameState {
             turn_phase: TurnPhase::Setup,
             tech_resources: vec![],
             bug_resources: vec![Resouce::Nest],
-            map: vec![vec![0; 17]; 34],
+            map: vec![vec!["".to_string(); 17]; 34],
         }
     }
 }

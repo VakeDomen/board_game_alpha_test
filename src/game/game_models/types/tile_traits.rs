@@ -2,6 +2,14 @@ use crate::game::{game_models::functions::ability_active::{contains_required_res
 
 use super::{structure::Structure, resource::Resouce};
 
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Tile {
+    Structure(Structure),
+    Unit,
+}
+
+
 pub trait Placable {
     fn place(&self, game_state: &mut GameState, x: i32, y: i32) -> Option<Structure>;
     fn can_place_on(&self, game_state: &GameState, x: i32, y: i32) -> bool;

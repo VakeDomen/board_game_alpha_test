@@ -1,7 +1,7 @@
 
 use std::mem;
 
-use crate::game::game_models::{types::structure::Structure, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
+use crate::game::game_models::{types::tile_traits::Tile, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
 
 use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove}, game_state::GameState};
 
@@ -41,13 +41,6 @@ pub enum TurnPhase {
     Main,
     End,
 }
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum Tile {
-    Structure(Structure),
-    Unit,
-}
-
 
 
 impl Game {
