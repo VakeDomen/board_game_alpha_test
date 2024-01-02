@@ -1,7 +1,9 @@
 
 use std::mem;
 
-use crate::game::game_models::{types::tile_traits::Tile, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
+use uuid::Uuid;
+
+use crate::game::game_models::{types::{tile_traits::Tile, structure::{NewStructure, StructureSelector}, map::StructurePlacer}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
 
 use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove}, game_state::GameState};
 
@@ -151,11 +153,21 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
 
     let mut setup_move = false;
 
-    
     if state.player_turn == Player::First {
         for player_move in state.move_que.iter() {
             if let Move::Tech(m) = player_move {
                 if let TechMove::SetupMove(x, y) = m {
+                    let structure = NewStructure {
+                        structure_type: StructureSelector::TechBase,
+                        id: Uuid::new_v4().to_string(),
+                        x: None,
+                        y: None,
+                    };
+                    if let Ok(s) = state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
+                        state.tiles.insert(s.id.clone(), Tile::Structure(s));
+                    } else {
+                        return Err(ProgressionError::CantPlaceBase);
+                    }
                     setup_move = true;
                 }
             }
@@ -166,6 +178,17 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
         for player_move in state.move_que.iter() {
             if let Move::Bug(m) = player_move {
                 if let BugMove::SetupMove(x, y) = m {
+                    let structure = NewStructure {
+                        structure_type: StructureSelector::BugBase1,
+                        id: Uuid::new_v4().to_string(),
+                        x: None,
+                        y: None,
+                    };
+                    if let Ok(s) = state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
+                        state.tiles.insert(s.id.clone(), Tile::Structure(s));
+                    } else {
+                        return Err(ProgressionError::CantPlaceBase);
+                    }
                     setup_move = true;
                 }
             }
@@ -182,5 +205,6 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
 
 #[derive(Debug)]
 pub enum ProgressionError {
-    NoBasePlacement
+    NoBasePlacement,
+    CantPlaceBase,
 }

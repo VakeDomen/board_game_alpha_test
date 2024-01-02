@@ -28,12 +28,19 @@ pub enum StructureSelector {
     TechNuke,
 }
 
+#[derive(Debug)]
+pub struct NewStructure {
+    pub structure_type: StructureSelector,
+    pub id: String,
+    pub x: Option<i32>,
+    pub y: Option<i32>,
+}
 
 
 #[derive(Debug, Serialize, Clone, PartialEq)]
 pub struct Structure {
     pub structure_type: StructureSelector,
-    pub id: i32,
+    pub id: String,
     pub x: i32,
     pub y: i32,
     pub activated: bool,
@@ -46,7 +53,23 @@ pub struct Structure {
 pub struct StructureRecepie {
     pub cost: Vec<Resouce>,
     pub footprint: Vec<Vec<bool>>,
-    pub spaced_placement: bool,
+    pub required_spaced_placement: bool,
+    pub required_road_connection: bool,
     pub stats: StructureStats,
     pub activated_costs: Vec<Vec<Resouce>>,
+}
+
+impl From<NewStructure> for Structure {
+    fn from(ns: NewStructure) -> Self {
+        Self {
+            structure_type: ns.structure_type,
+            id: ns.id,
+            x: ns.x.unwrap(),
+            y: ns.y.unwrap(),
+            activated: false,
+            activation_resources: vec![],
+            exhausted: false,
+            additional_data: HashMap::new(),
+        }
+    }
 }
