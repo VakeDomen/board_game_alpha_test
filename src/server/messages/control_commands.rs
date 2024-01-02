@@ -6,6 +6,8 @@ pub enum ControlCommand {
     CreateGame(String),
     JoinGame(String),
     StartGame(String),
+    ListLobby(String),
+    ListRunning(String),
     Unknown,
 }
 
@@ -16,6 +18,8 @@ impl From<String> for ControlCommand {
             _ if value.starts_with("CREATE ") => Self::CreateGame(value["CREATE ".len()..].to_string()),
             _ if value.starts_with("JOIN ") => Self::JoinGame(value["JOIN ".len()..].to_string()),
             _ if value.starts_with("START ") => Self::StartGame(value["START ".len()..].to_string()),
+            _ if value.starts_with("LOBBY") => Self::ListLobby(value["START ".len()..].to_string()),
+            _ if value.starts_with("RUNNING") => Self::ListRunning(value["START ".len()..].to_string()),
             _ => Self::Unknown,
         }
     }

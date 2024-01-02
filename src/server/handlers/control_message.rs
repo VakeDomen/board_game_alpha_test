@@ -2,7 +2,7 @@ use crate::{
     game::core::{lobby::{new_game::NewGame, match_state::MatchState}, game::Game}, 
     storage::{operations::{
         socket::{is_authenticated, get_socket_name}, 
-        game::{has_second_player, get_lobby_game_by_name, remove_from_storage, add_to_storage, set_player2}
+        game::{has_second_player, get_lobby_game_by_name, remove_from_storage, add_to_storage, set_player2, get_new_games, get_running_games, game_exists}
     }, active::save_matches}
 };
 
@@ -54,6 +54,10 @@ pub fn create_game(name: String, socket_id: String) -> WSSMessage {
     if !is_authenticated(&socket_id) {
         return WSSMessage::Unauthorized;
     }
+    
+    if game_exists(name.clone()) {
+        return WSSMessage::Error("Game with this name exists already".to_string());
+    }
 
     let get_socket_name = get_socket_name(&socket_id);
     let game = NewGame {
@@ -67,3 +71,16 @@ pub fn create_game(name: String, socket_id: String) -> WSSMessage {
     WSSMessage::NewGame(game)
 }
 
+
+pub fn list_lobby(name: String, socket_id: String) -> WSSMessage {
+    WSSMessage::Lobby(get_new_games())
+
+}
+
+pub fn list_running(name: String, socket_id: String) -> WSSMessage {
+    if !is_authenticated(&socket_id) {
+        return WSSMessage::Unauthorized;
+    }
+    let name = get_socket_name(&socket_id).unwrap();
+    WSSMessage::Running(get_running_games(name))
+}

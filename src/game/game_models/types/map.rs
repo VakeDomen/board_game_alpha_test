@@ -28,13 +28,13 @@ pub trait Extrcator {
 
 pub trait StructurePlacer {
     fn place_structure(&mut self, selector: NewStructure, tiles: HashMap<String, Tile>, x: i32, y: i32) -> Result<Structure, MapError> ;
-    fn can_place_structure(&self, selector: &StructureSelector, tiles: HashMap<String, Tile>, x: i32, y: i32) -> bool;
+    fn can_place_structure(&self, selector: &StructureSelector, tiles: HashMap<String, Tile>, x: i32, y: i32) -> Result<(), MapError>;
 }
 
 impl StructurePlacer for Map {
     fn place_structure(&mut self, mut structure: NewStructure, tiles: HashMap<String, Tile>, x: i32, y: i32) -> Result<Structure, MapError> {
-        if !self.can_place_structure(&structure.structure_type, tiles, x, y) {
-            return Err(MapError::ContructionObstructed);
+        if let Err(e) = self.can_place_structure(&structure.structure_type, tiles, x, y) {
+            return Err(e);
         }
 
         let recepie = get_recepie(&structure.structure_type);
@@ -48,15 +48,15 @@ impl StructurePlacer for Map {
         Ok(Structure::from(structure))
     } 
 
-    fn can_place_structure(&self, selector: &StructureSelector, tiles: HashMap<String, Tile>, x: i32, y: i32) -> bool {
+    fn can_place_structure(&self, selector: &StructureSelector, tiles: HashMap<String, Tile>, x: i32, y: i32) -> Result<(), MapError> {
         let recepie = get_recepie(selector);
         let footprint = self.get_footprint_tiles(x, y, &recepie.footprint);
 
         // are tiles free?
         for (_, tile) in footprint.iter() {
             match tile {
-                TileOption::Id(_) => return false,
-                TileOption::OutOfBounds => return false,
+                TileOption::Id(_) => return Err(MapError::ContructionObstructed),
+                TileOption::OutOfBounds => return Err(MapError::ConstructionOutOfBounds),
                 _ => (),
             };
         }
@@ -80,7 +80,7 @@ impl StructurePlacer for Map {
             }
 
             if !found_road {
-                return false
+                return Err(MapError::NotConnectedToRoad)
             }
         }
 
@@ -103,11 +103,11 @@ impl StructurePlacer for Map {
             }
 
             if !naighbouring_space_occupied {
-                return false
+                return Err(MapError::NotEnougyProximitySpace)
             }
         }
 
-        true
+        Ok(())
     } 
 }
 
@@ -219,12 +219,12 @@ impl Extrcator for Map {
                 // Determine the map location and tile option
                 let location = (current_x, current_y);
                 let tile_option = if 
-                    current_x >= self[0].len() || 
-                    current_y >= self.len() 
+                    current_x >= self.len() || 
+                    current_y >= self[0].len() 
                 {
                     TileOption::OutOfBounds
                 } else if part_of_footprint {
-                    match self[current_y][current_x].as_str() {
+                    match self[current_x][current_y].as_str() {
                         "" => TileOption::None,
                         id => TileOption::Id(id.to_string()),
                     }
@@ -241,6 +241,10 @@ impl Extrcator for Map {
 
 }
 
+#[derive(Debug)]
 pub enum MapError {
     ContructionObstructed,
+    NotConnectedToRoad,
+    NotEnougyProximitySpace,
+    ConstructionOutOfBounds,
 }

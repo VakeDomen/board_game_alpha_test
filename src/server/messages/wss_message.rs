@@ -19,6 +19,8 @@ pub enum WSSMessage {
     Error(String),
     NewGame(NewGame),
     State(Game),
+    Lobby(Vec<NewGame>),
+    Running(Vec<Game>),
     Unauthorized,
     NotEnoughPlayers,
 }

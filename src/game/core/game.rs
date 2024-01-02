@@ -4,7 +4,7 @@ use std::mem;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
-use crate::game::game_models::{types::{tile_traits::Tile, structure::{NewStructure, StructureSelector}, map::StructurePlacer}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
+use crate::game::game_models::{types::{tile_traits::Tile, structure::{NewStructure, StructureSelector}, map::{StructurePlacer, MapError}}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
 
 use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove}, game_state::GameState};
 
@@ -49,7 +49,7 @@ pub enum TurnPhase {
 
 
 impl Game {
-    fn progress_state(mut self) -> Result<(), ProgressionError> {
+    pub fn progress_state(&mut self) -> Result<(), ProgressionError> {
         let mut current_state = self.states.last_mut().unwrap();
         let result = match current_state.turn_phase {
             TurnPhase::Setup => progress_from_setup(&mut current_state),
@@ -158,6 +158,7 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
 
     if state.player_turn == Player::First {
         for player_move in state.move_que.iter() {
+            let mut executed = false;
             if let Move::Tech(m) = player_move {
                 if let TechMove::SetupMove(x, y) = m {
                     let structure = NewStructure {
@@ -166,12 +167,15 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
                         x: None,
                         y: None,
                     };
-                    if let Ok(s) = state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
-                        state.tiles.insert(s.id.clone(), Tile::Structure(s));
-                    } else {
-                        return Err(ProgressionError::CantPlaceBase);
-                    }
+                    match state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
+                        Ok(s) => state.tiles.insert(s.id.clone(), Tile::Structure(s)),
+                        Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+                    };
                     setup_move = true;
+                    executed = true;
+                }
+                if executed {
+                    state.executed_moves.push(player_move.clone());
                 }
             }
         }
@@ -179,6 +183,7 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
 
     if state.player_turn == Player::Second {
         for player_move in state.move_que.iter() {
+            let mut executed = false;
             if let Move::Bug(m) = player_move {
                 if let BugMove::SetupMove(x, y) = m {
                     let structure = NewStructure {
@@ -187,19 +192,28 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
                         x: None,
                         y: None,
                     };
-                    if let Ok(s) = state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
-                        state.tiles.insert(s.id.clone(), Tile::Structure(s));
-                    } else {
-                        return Err(ProgressionError::CantPlaceBase);
-                    }
+                    match state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
+                        Ok(s) => state.tiles.insert(s.id.clone(), Tile::Structure(s)),
+                        Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+                    };
                     setup_move = true;
+                    executed = true;
                 }
+            }
+            if executed {
+                state.executed_moves.push(player_move.clone());
             }
         }
     }
 
     if setup_move {
-        state.turn_phase = TurnPhase::Dmg;
+        if state.player_turn == Player::First {
+            state.player_turn = Player::Second;
+        } else {
+            state.player_turn = Player::First;
+            state.turn_phase = TurnPhase::Dmg;
+        }
+        state.move_que = vec![];
         Ok(None)
     } else {
         Err(ProgressionError::NoBasePlacement)
@@ -209,5 +223,5 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
 #[derive(Debug)]
 pub enum ProgressionError {
     NoBasePlacement,
-    CantPlaceBase,
+    CantPlaceBase(MapError),
 }

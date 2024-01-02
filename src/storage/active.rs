@@ -19,7 +19,7 @@ pub static MATCHES: Lazy<Mutex<Vec<MatchState>>> = Lazy::new(|| {
 pub fn save_matches() {
     let matches = MATCHES.lock().unwrap();
     match serde_any::to_file("matches.json", &*matches) {
-        Ok(_) => {},
+        Ok(_) => { println!("Matches saved.") },
         Err(e) => {println!("Error saving matches: {:?}", e);}
     };
 }

@@ -1,5 +1,5 @@
 use crate::{
-    storage::active::MATCHES, 
+    storage::active::{MATCHES, save_matches}, 
     game::core::{lobby::{new_game::NewGame, match_state::MatchState}, 
     game::Game}
 };
@@ -65,10 +65,35 @@ pub fn remove_from_storage(name: String) {
                 break;
             }
         }
+
+        if let MatchState::Running(g) = game {
+            if g.name == name {
+                index_to_delete = Some(index);
+                break;
+            }
+        }
     }
     if index_to_delete.is_some() {
         games.remove(index_to_delete.unwrap());
     }
+}
+
+pub fn game_exists(name: String) -> bool {
+    let mut games = MATCHES.lock().unwrap();
+    for game in games.iter().enumerate() {
+        if let MatchState::Lobby(g) = game.1 {
+            if g.name == name {
+                break;
+            }
+        }
+
+        if let MatchState::Running(g) = game.1 {
+            if g.name == name {
+                break;
+            }
+        }
+    }
+    false
 }
 
 pub fn add_to_storage(game: MatchState) {
@@ -86,4 +111,11 @@ pub fn get_running_game_by_name(game_name: &str) -> Option<Game> {
         }
     }
     None
+}
+
+pub fn replace_game(name: String, game: Game) {
+    remove_from_storage(name);
+    println!("{:#?}", game);
+    add_to_storage(MatchState::Running(game));
+    save_matches();
 }
