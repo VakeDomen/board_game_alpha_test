@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resouce}, core::game_state::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resouce, map::Interactor}, core::game_state::GameState};
 
 pub struct TechRefinery1Active;
 pub struct TechRefinery2Active;
@@ -81,6 +81,8 @@ impl ActiveAbility for TechMarketActive {
             return false;
         }
 
+        structure.activated = false;
+        structure.activation_resources = vec![];
             
         // deconstruct building
         if trigger_mode == 1 {
@@ -90,8 +92,12 @@ impl ActiveAbility for TechMarketActive {
                 None => return false,
             };
 
-            structure.additional_data.remove("deconstruct_id");
-            todo!("make deconstruction happen");
+            let id = structure.additional_data.remove("deconstruct_id");
+            let id = match id {
+                Some(id) => id,
+                None => return false,
+            };
+            return game_state.map.remove_tile(id);
         }
 
         // sell metal
@@ -100,9 +106,6 @@ impl ActiveAbility for TechMarketActive {
             game_state.tech_resources.push(Resouce::Gold);
             game_state.tech_resources.push(Resouce::Gold);            
         }
-
-        structure.activated = false;
-        structure.activation_resources = vec![];
         
         true
     }

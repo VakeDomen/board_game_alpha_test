@@ -16,7 +16,7 @@ pub enum TileOption {
 type MapLocation = (usize, usize);
 
 
-pub trait Extrcator {
+pub trait Interactor {
     fn get_tile(&self, x: i32, y: i32) -> TileOption;
     fn get_tile_adjacent(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)>;
     fn get_tile_adjacent_cornered(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)>;
@@ -25,9 +25,11 @@ pub trait Extrcator {
     fn get_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
     fn get_footprint_tiles_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_adjacent_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)>;
+
+    fn remove_tile(&mut self, id: String) -> bool;
 }
 
-impl Extrcator for Map {
+impl Interactor for Map {
     fn get_tile(&self, x: i32, y: i32) -> TileOption {
         if x >= self.len().try_into().unwrap() {
             return TileOption::OutOfBounds;
@@ -165,6 +167,18 @@ impl Extrcator for Map {
             }
         }
         out
+    }
+
+    fn remove_tile(&mut self, id: String) -> bool {
+        let mut found = false;
+        for (index, row) in self.iter().enumerate() {
+            for (inner_index, mut col) in row.iter().enumerate() {
+                if col.eq(&id) {
+                    *col = "".to_string();
+                }
+            }
+        }
+        found
     }
 
 }
