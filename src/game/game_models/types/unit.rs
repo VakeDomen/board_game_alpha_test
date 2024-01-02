@@ -22,7 +22,7 @@ pub struct NewUnit {
 
 #[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
 pub struct Unit {
-    pub structure_type: UnitSelector,
+    pub unit_type: UnitSelector,
     pub id: String,
     pub x: i32,
     pub y: i32,

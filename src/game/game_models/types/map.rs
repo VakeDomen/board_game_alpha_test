@@ -14,6 +14,7 @@ pub trait Interactor {
     fn get_tile(&self, x: i32, y: i32) -> TileOption;
     fn get_tile_adjacent(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)>;
     fn get_tile_adjacent_cornered(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)>;
+    fn get_tile_corners(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)>;
     fn get_tile_adjecent_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_tile_adjecent_cornered_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
@@ -50,6 +51,12 @@ impl Interactor for Map {
     // Returns the 8 tiles surrounding the specified location, including diagonals
     fn get_tile_adjacent_cornered(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)> {
         let directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]; // Including diagonals
+        self.get_adjacent_tiles(x, y, &directions)
+    }
+
+    // Returns the 8 tiles surrounding the specified location, including diagonals
+    fn get_tile_corners(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)> {
+        let directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]; // just diagonals
         self.get_adjacent_tiles(x, y, &directions)
     }
 

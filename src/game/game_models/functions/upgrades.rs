@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::Upgradable, resource::Resouce, map::Interactor}, core::game_state::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::{Upgradable, Tile}, resource::Resouce, map::{Interactor, TileOption}, unit::UnitSelector}, core::game_state::GameState};
 
 
 
@@ -40,11 +40,32 @@ impl Upgradable for BugBase2Upgrader {
             return false;
         }
         structure.structure_type = StructureSelector::BugBase3;
+        for (location, tile_option) in game_state.map.get_tile_corners(structure.x, structure.y) {
+            if let TileOption::Id(id) = tile_option {
+                game_state.tiles.remove(&id);
+            }
+            game_state.map[location.0][location.1] = structure.id.clone();
+        }
+
         true
     }
 
     fn can_upgrade(&self, game_state: &GameState, structure: &mut Structure) -> bool {
-        false
+        for (_, tile_option) in game_state.map.get_tile_corners(structure.x + 1, structure.y + 1) {
+            let tile = match tile_option {
+                TileOption::Id(id) => game_state.tiles.get(&id).unwrap(),
+                TileOption::None => return false,
+                TileOption::OutOfBounds => return false,
+            };
+            let unit = match tile {
+                Tile::Structure(_) => return false,
+                Tile::Unit(u) => u,
+            };
+            if UnitSelector::BugSoldierLV1 != unit.unit_type {
+                return false
+            }
+        }
+        true
     }
 }
 
@@ -54,11 +75,36 @@ impl Upgradable for BugBase1Upgrader {
             return false;
         }
         structure.structure_type = StructureSelector::BugBase2;
+
+        for (location, tile_option) in game_state.map.get_tile_adjacent(structure.x, structure.y) {
+            if let TileOption::Id(id) = tile_option {
+                game_state.tiles.remove(&id);
+            }
+            game_state.map[location.0][location.1] = structure.id.clone();
+        }
+        // offset top left corner
+        structure.x -= 1;
+        structure.y -= 1;
+
         true
     }
 
     fn can_upgrade(&self, game_state: &GameState, structure: &mut Structure) -> bool {
-        false
+        for (_, tile_option) in game_state.map.get_tile_adjacent(structure.x, structure.y) {
+            let tile = match tile_option {
+                TileOption::Id(id) => game_state.tiles.get(&id).unwrap(),
+                TileOption::None => return false,
+                TileOption::OutOfBounds => return false,
+            };
+            let unit = match tile {
+                Tile::Structure(_) => return false,
+                Tile::Unit(u) => u,
+            };
+            if UnitSelector::BugSoldierLV1 != unit.unit_type {
+                return false
+            }
+        }
+        true
     }
 }
 

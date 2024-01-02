@@ -1,11 +1,11 @@
 
-use std::{mem, collections::HashMap};
+use std::mem;
 
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 use crate::{
-    game::game_models::{types::{tile_traits::{Tile, NewTile}, structure::{NewStructure, StructureSelector}, map::MapError, resource::Resouce}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::{get_active_abilities, remove_resources}, placers::get_placers}, data::structures::{costs::get_costs, activation_costs::get_activation_costs}}, main};
+    game::game_models::{types::{tile_traits::{Tile, NewTile}, structure::{NewStructure, StructureSelector}, map::MapError}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::{get_active_abilities, remove_resources}, placers::get_placers}, data::structures::{costs::get_costs, activation_costs::get_activation_costs}}, main};
 
 use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove, TechMainPhaseMove, BugMainPhaseMove}, game_state::GameState};
 

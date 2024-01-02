@@ -23,8 +23,3 @@ pub fn save_matches() {
         Err(e) => {println!("Error saving matches: {:?}", e);}
     };
 }
-
-pub fn save_matches_in_scope<T: serde::Serialize>(data: &T) -> io::Result<()> {
-    let serialized = serde_any::to_string(data, Format::Json).unwrap();
-    fs::write("matches.json", serialized)
-}

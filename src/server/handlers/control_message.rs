@@ -72,12 +72,12 @@ pub fn create_game(name: String, socket_id: String) -> WSSMessage {
 }
 
 
-pub fn list_lobby(name: String, socket_id: String) -> WSSMessage {
+pub fn list_lobby(_: String, _: String) -> WSSMessage {
     WSSMessage::Lobby(get_new_games())
 
 }
 
-pub fn list_running(name: String, socket_id: String) -> WSSMessage {
+pub fn list_running(_: String, socket_id: String) -> WSSMessage {
     if !is_authenticated(&socket_id) {
         return WSSMessage::Unauthorized;
     }
