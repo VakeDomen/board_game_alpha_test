@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 use crate::{
-    game::game_models::{types::{tile_traits::{Tile, NewTile}, structure::{NewStructure, StructureSelector}, map::MapError}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::{get_active_abilities, remove_resources}, placers::get_placers}, data::structures::{costs::get_costs, activation_costs::get_activation_costs}}, main};
+    game::game_models::{types::{tile_traits::{Tile, NewTile}, structure::{NewStructure, StructureSelector}, map::{MapError, Interactor, TileOption}, unit::UnitSelector}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::{get_active_abilities, remove_resources}, placers::get_placers}, data::structures::{costs::get_costs, activation_costs::get_activation_costs}}, main};
 
 use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove, TechMainPhaseMove, BugMainPhaseMove}, game_state::GameState};
 
@@ -268,7 +268,68 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
         }
     }  
     state.tiles = tiles; // Put the original tiles back.
-    
+
+
+    // check if T1 nests need to be placed
+    let placers = get_placers();
+    for row in {0..state.map.len()} {
+        for col in {0..state.map[row].len()} {
+            if !state.map[row][col].is_empty() {
+                continue;
+            }
+
+            let adj = state.map.get_tile_adjacent(row as i32, col as i32);
+            let mut all_t1_units = true;
+            for (_, tile_option) in adj.iter() {
+                let tile = match tile_option {
+                    TileOption::Id(id) => state.tiles.get(id).unwrap(),
+                    TileOption::None => {
+                        all_t1_units = false;
+                        break; 
+                    },
+                    TileOption::OutOfBounds =>{
+                        all_t1_units = false;
+                        break; 
+                    },
+                };
+                let unit = match tile {
+                    Tile::Structure(_) => {
+                        all_t1_units = false;
+                        break; 
+                    },
+                    Tile::Unit(u) => u,
+                };
+                if UnitSelector::BugSoldierLV1 != unit.unit_type {
+                    all_t1_units = false;
+                    break; 
+                }
+            }
+            if !all_t1_units {
+                continue;
+            }
+            for (loc, _) in adj.iter() {
+                state.map[loc.0][loc.1] = "".to_owned();
+            }
+            if let Some(placer) = placers.get(&StructureSelector::BugBase1) {
+                if let Some(placer) = placer {
+                    let id = Uuid::new_v4().to_string();
+                    let structure = NewStructure {
+                        structure_type: StructureSelector::BugBase1,
+                        id: id.clone(),
+                        x: None,
+                        y: None,
+                    };
+                    match placer.place(NewTile::Structure(structure), state, row as i32, col as i32) {
+                        Ok(s) => state.tiles.insert(id, s),
+                        Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+                    };
+                }
+            }
+            
+        }
+    }
+
+
     
     state.turn_phase = TurnPhase::Main;
     Ok(None)
