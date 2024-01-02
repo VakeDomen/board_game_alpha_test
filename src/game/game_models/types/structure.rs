@@ -28,7 +28,7 @@ pub enum StructureSelector {
     TechNuke,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NewStructure {
     pub structure_type: StructureSelector,
     pub id: String,

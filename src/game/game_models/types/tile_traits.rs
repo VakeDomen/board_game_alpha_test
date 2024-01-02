@@ -2,20 +2,24 @@ use serde::{Serialize, Deserialize};
 
 use crate::game::{game_models::functions::ability_active::{contains_required_resources, remove_resources}, core::game_state::GameState};
 
-use super::{structure::Structure, resource::Resouce};
+use super::{structure::{Structure, NewStructure}, resource::Resouce, unit::{NewUnit, Unit}, map::MapError};
 
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Tile {
     Structure(Structure),
-    Unit,
+    Unit(Unit),
+}
+
+pub enum NewTile {
+    Structure(NewStructure),
+    Unit(NewUnit),
 }
 
 
 pub trait Placable {
-    fn place(&self, game_state: &mut GameState, x: i32, y: i32) -> Option<Structure>;
-    fn can_place_on(&self, game_state: &GameState, x: i32, y: i32) -> bool;
-    fn has_enough_resources(&self, game_state: &GameState) -> bool;
+    fn place(&self, new_tile: NewTile, game_state: &mut GameState, x: i32, y: i32) -> Result<Tile, MapError>;
+    fn can_place_on(&self, new_tile: &NewTile, game_state: &GameState, x: i32, y: i32) -> Result<(), MapError>;
 }
 
 pub trait Upgradable {

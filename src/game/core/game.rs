@@ -4,7 +4,7 @@ use std::mem;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
-use crate::game::game_models::{types::{tile_traits::Tile, structure::{NewStructure, StructureSelector}, map::{StructurePlacer, MapError}}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities}};
+use crate::game::game_models::{types::{tile_traits::{Tile, NewTile}, structure::{NewStructure, StructureSelector}, map::MapError}, functions::{upgrades::get_upgraders, ability_passive::get_passive_abilities, ability_active::get_active_abilities, placers::get_placers}};
 
 use super::{lobby::new_game::NewGame, types::moves::{BugMove, Move, TechMove}, game_state::GameState};
 
@@ -179,57 +179,105 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
         return Err(ProgressionError::NoBasePlacement);
     }
 
+    let placers = get_placers();
+
     let mut setup_move = false;
 
-    if state.player_turn == Player::First {
-        for player_move in state.move_que.iter() {
-            let mut executed = false;
-            if let Move::Tech(m) = player_move {
-                if let TechMove::SetupMove(x, y) = m {
-                    let structure = NewStructure {
-                        structure_type: StructureSelector::TechBase,
-                        id: Uuid::new_v4().to_string(),
-                        x: None,
-                        y: None,
-                    };
-                    match state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
-                        Ok(s) => state.tiles.insert(s.id.clone(), Tile::Structure(s)),
-                        Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
-                    };
-                    setup_move = true;
-                    executed = true;
-                }
-                if executed {
-                    state.executed_moves.push(player_move.clone());
+    // trigger upgrade structs
+    let mut que = mem::take(&mut state.move_que);
+    for potential_move in &mut que {
+        if state.player_turn == Player::First {
+            if let Move::Tech(tech_move) = potential_move {
+                if let TechMove::SetupMove(x, y) = tech_move {
+                    if let Some(placer) = placers.get(&StructureSelector::TechBase) {
+                        if let Some(placer) = placer {
+                            let structure = NewStructure {
+                                structure_type: StructureSelector::TechBase,
+                                id: Uuid::new_v4().to_string(),
+                                x: None,
+                                y: None,
+                            };
+                            if let Ok(_) = placer.place(NewTile::Structure(structure), state, *x, *y) {
+                                setup_move = true;
+                            }
+                        }
+                    }
                 }
             }
+            continue;
         }
-    }
 
-    if state.player_turn == Player::Second {
-        for player_move in state.move_que.iter() {
-            let mut executed = false;
-            if let Move::Bug(m) = player_move {
-                if let BugMove::SetupMove(x, y) = m {
-                    let structure = NewStructure {
-                        structure_type: StructureSelector::BugBase1,
-                        id: Uuid::new_v4().to_string(),
-                        x: None,
-                        y: None,
-                    };
-                    match state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
-                        Ok(s) => state.tiles.insert(s.id.clone(), Tile::Structure(s)),
-                        Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
-                    };
-                    setup_move = true;
-                    executed = true;
+        if state.player_turn == Player::Second {
+            if let Move::Bug(bug_move) = potential_move {
+                if let BugMove::SetupMove(x, y) = bug_move {
+                    if let Some(placer) = placers.get(&StructureSelector::BugBase1) {
+                        if let Some(placer) = placer {
+                            let structure = NewStructure {
+                                structure_type: StructureSelector::BugBase1,
+                                id: Uuid::new_v4().to_string(),
+                                x: None,
+                                y: None,
+                            };
+                            if let Ok(_) = placer.place(NewTile::Structure(structure), state, *x, *y) {
+                                setup_move = true;
+                            }
+                        }
+                    }
                 }
             }
-            if executed {
-                state.executed_moves.push(player_move.clone());
-            }
         }
-    }
+    }  
+
+    state.move_que = que;
+    // if state.player_turn == Player::First {
+    //     for player_move in state.move_que.iter() {
+    //         let mut executed = false;
+    //         if let Move::Tech(m) = player_move {
+    //             if let TechMove::SetupMove(x, y) = m {
+    //                 let structure = NewStructure {
+    //                     structure_type: StructureSelector::TechBase,
+    //                     id: Uuid::new_v4().to_string(),
+    //                     x: None,
+    //                     y: None,
+    //                 };
+    //                 match state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
+    //                     Ok(s) => state.tiles.insert(s.id.clone(), Tile::Structure(s)),
+    //                     Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+    //                 };
+    //                 setup_move = true;
+    //                 executed = true;
+    //             }
+    //             if executed {
+    //                 state.executed_moves.push(player_move.clone());
+    //             }
+    //         }
+    //     }
+    // }
+
+    // if state.player_turn == Player::Second {
+    //     for player_move in state.move_que.iter() {
+    //         let mut executed = false;
+    //         if let Move::Bug(m) = player_move {
+    //             if let BugMove::SetupMove(x, y) = m {
+    //                 let structure = NewStructure {
+    //                     structure_type: StructureSelector::BugBase1,
+    //                     id: Uuid::new_v4().to_string(),
+    //                     x: None,
+    //                     y: None,
+    //                 };
+    //                 match state.map.place_structure(structure, state.tiles.clone(), *x, *y) {
+    //                     Ok(s) => state.tiles.insert(s.id.clone(), Tile::Structure(s)),
+    //                     Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+    //                 };
+    //                 setup_move = true;
+    //                 executed = true;
+    //             }
+    //         }
+    //         if executed {
+    //             state.executed_moves.push(player_move.clone());
+    //         }
+    //     }
+    // }
 
     if setup_move {
         if state.player_turn == Player::First {

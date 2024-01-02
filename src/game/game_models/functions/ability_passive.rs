@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::PassiveAbility, resource::Resouce, map::Extrcator}, core::game_state::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure, self}, tile_traits::PassiveAbility, resource::Resouce, map::Extrcator}, core::game_state::GameState};
 
 pub struct BugBase1Passive;
 pub struct BugBase2Passive;
@@ -76,7 +76,7 @@ impl PassiveAbility for BugBase1Passive {
 }
 
 impl PassiveAbility for BugBase2Passive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
         let mut on_bottom_edge = false;
         for (loc, _) in footprint {
@@ -96,7 +96,7 @@ impl PassiveAbility for BugBase2Passive {
 }
 
 impl PassiveAbility for BugBase3Passive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
         let mut on_bottom_edge = false;
         for (loc, _) in footprint {

@@ -27,91 +27,6 @@ pub trait Extrcator {
     fn get_adjacent_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)>;
 }
 
-pub trait StructurePlacer {
-    fn place_structure(&mut self, selector: NewStructure, tiles: HashMap<String, Tile>, x: i32, y: i32) -> Result<Structure, MapError> ;
-    fn can_place_structure(&self, selector: &StructureSelector, tiles: HashMap<String, Tile>, x: i32, y: i32) -> Result<(), MapError>;
-}
-
-impl StructurePlacer for Map {
-    fn place_structure(&mut self, mut structure: NewStructure, tiles: HashMap<String, Tile>, x: i32, y: i32) -> Result<Structure, MapError> {
-        if let Err(e) = self.can_place_structure(&structure.structure_type, tiles, x, y) {
-            return Err(e);
-        }
-
-        let recepie = get_recepie(&structure.structure_type);
-        for (location, _) in self.get_footprint_tiles(x, y, &recepie.footprint) {
-            self[location.0][location.1] = structure.id.to_string();
-        }
-
-        structure.x = Some(x);
-        structure.y = Some(y);
-
-        Ok(Structure::from(structure))
-    } 
-
-    fn can_place_structure(&self, selector: &StructureSelector, tiles: HashMap<String, Tile>, x: i32, y: i32) -> Result<(), MapError> {
-        let recepie = get_recepie(selector);
-        let footprint = self.get_footprint_tiles(x, y, &recepie.footprint);
-
-        // are tiles free?
-        for (_, tile) in footprint.iter() {
-            match tile {
-                TileOption::Id(_) => return Err(MapError::ContructionObstructed),
-                TileOption::OutOfBounds => return Err(MapError::ConstructionOutOfBounds),
-                _ => (),
-            };
-        }
-
-        // is it connected to a road if it needs to be?
-        if recepie.required_road_connection {
-            let mut found_road = false;
-
-            for (location, _) in footprint.iter() {
-                for (_, tile_option) in self.get_tile_adjacent(location.0 as i32, location.1 as i32) {
-                    if let TileOption::Id(tile_id) = tile_option {
-                        if let Some(tile) = tiles.get(&tile_id) {
-                            if let Tile::Structure(s) = tile {
-                                if s.structure_type == StructureSelector::TechRoad {
-                                    found_road = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if !found_road {
-                return Err(MapError::NotConnectedToRoad)
-            }
-        }
-
-        // is is dufficiently far from other buildings?
-        if recepie.required_spaced_placement {
-            let mut naighbouring_space_occupied = false;
-            let spacings = get_spaced_placements();
-            for (location, _) in footprint.iter() {
-                for (_, tile_option) in self.get_tile_adjacent(location.0 as i32, location.1 as i32) {
-                    if let TileOption::Id(tile_id) = tile_option {
-                        if let Some(tile) = tiles.get(&tile_id) {
-                            if let Tile::Structure(s) = tile {
-                                if *spacings.get(&s.structure_type).unwrap() {
-                                    naighbouring_space_occupied = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if !naighbouring_space_occupied {
-                return Err(MapError::NotEnougyProximitySpace)
-            }
-        }
-
-        Ok(())
-    } 
-}
-
 impl Extrcator for Map {
     fn get_tile(&self, x: i32, y: i32) -> TileOption {
         if x >= self.len().try_into().unwrap() {
@@ -260,4 +175,5 @@ pub enum MapError {
     NotConnectedToRoad,
     NotEnougyProximitySpace,
     ConstructionOutOfBounds,
+    IncorrectPlacer,
 }

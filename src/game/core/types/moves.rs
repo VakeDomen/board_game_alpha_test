@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::game::game_models::types::{structure::StructureSelector, resource::Resouce};
+use crate::game::game_models::types::{structure::StructureSelector, unit::UnitSelector};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Move {
@@ -18,7 +18,7 @@ pub enum TechMove {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TechMainPhaseMove {
     Build(StructureSelector, i32, i32),
-    ActivateAbility(StructureSelector, Resouce),
+    ActivateAbility(String, i32), // id and index of ability. usually 0
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -30,6 +30,7 @@ pub enum BugMove {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum BugMainPhaseMove {
-    PlaceUnit(StructureSelector, i32, i32),
+    PlaceUnit(UnitSelector, i32, i32, i32), // selector, x, y, orientation (0-3)
     ActivateAbility(String, i32), // id and index of ability. usually 0
+    SacrificeUnit(String),
 }
