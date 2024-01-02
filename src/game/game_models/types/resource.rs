@@ -5,5 +5,6 @@ pub enum Resouce {
     Gold,
     Metal,
     Egg,
-    Soul
+    Corpse,
+    GiantEgg,
 }

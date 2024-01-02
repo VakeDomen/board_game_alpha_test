@@ -6,6 +6,7 @@ pub struct TechRefinery1Active;
 pub struct TechRefinery2Active;
 pub struct TechMarketActive;
 pub struct TechNukeActive;
+pub struct BugBase3Active;
 
 
 pub fn get_active_abilities() -> HashMap<StructureSelector, Option<Box<dyn ActiveAbility>>> {
@@ -27,6 +28,21 @@ pub fn get_active_abilities() -> HashMap<StructureSelector, Option<Box<dyn Activ
     hm.insert(StructureSelector::TechWall1, None);
     hm.insert(StructureSelector::TechNuke, Some(Box::new(TechNukeActive{})));
     hm
+}
+
+impl ActiveAbility for BugBase3Active {
+    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+        if !self.can_trigger(game_state, structure, &vec![
+            Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, 
+            Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, 
+        ]) {
+            return false;
+        }
+
+        game_state.bug_resources.push(Resouce::GiantEgg);
+        todo!("Downgrade base");
+        true
+    }
 }
 
 impl ActiveAbility for TechNukeActive {

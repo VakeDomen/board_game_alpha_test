@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 
 
-#[derive(Debug, Serialize, Deserialize, Clone, Hash, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Eq, Clone, Hash, PartialEq)]
 pub enum UnitSelector {
     BugSoldierLV1,
     BugSoldierLV2,

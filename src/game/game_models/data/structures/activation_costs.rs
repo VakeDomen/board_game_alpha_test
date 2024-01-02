@@ -7,7 +7,12 @@ pub fn get_activation_costs() -> HashMap<StructureSelector, Vec<Vec<Resouce>>> {
     let mut hm = HashMap::new();
     hm.insert(StructureSelector::BugBase1, vec![],);
     hm.insert(StructureSelector::BugBase2, vec![],);
-    hm.insert(StructureSelector::BugBase3, vec![],);
+    hm.insert(StructureSelector::BugBase3, vec![
+        vec![
+            Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, 
+            Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, 
+        ]
+    ],);
     hm.insert(StructureSelector::TechBase, vec![]);
     hm.insert(StructureSelector::TechRoad, vec![]);
     hm.insert(StructureSelector::TechMine1, vec![
