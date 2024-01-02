@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::PassiveAbility, resource::Resouce}, core::game_state::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::PassiveAbility, resource::Resouce, map::Extrcator}, core::game_state::GameState};
 
 pub struct BugBase1Passive;
 pub struct BugBase2Passive;
@@ -33,8 +33,6 @@ pub fn get_passive_abilities() -> HashMap<StructureSelector, Option<Box<dyn Pass
 
 impl PassiveAbility for TechBasePassive {
     fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        //TODO: bonus on map edge
-
         game_state.tech_resources.push(Resouce::Gold);
         game_state.tech_resources.push(Resouce::Gold);
         game_state.tech_resources.push(Resouce::Gold);
@@ -44,8 +42,6 @@ impl PassiveAbility for TechBasePassive {
 
 impl PassiveAbility for TechMine1Passive {
     fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        //TODO: bonus on map edge
-
         game_state.tech_resources.push(Resouce::Gold);
         game_state.tech_resources.push(Resouce::Gold);
         true
@@ -54,8 +50,6 @@ impl PassiveAbility for TechMine1Passive {
 
 impl PassiveAbility for TechMine2Passive {
     fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        //TODO: bonus on map edge
-
         game_state.tech_resources.push(Resouce::Gold);
         game_state.tech_resources.push(Resouce::Gold);
         game_state.tech_resources.push(Resouce::Gold);
@@ -64,9 +58,18 @@ impl PassiveAbility for TechMine2Passive {
 }
 
 impl PassiveAbility for BugBase1Passive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        //TODO: bonus on map edge
+    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+        let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
+        let mut on_bottom_edge = false;
+        for (loc, _) in footprint {
+            if loc.0 == game_state.map.len() - 1 {
+                on_bottom_edge = true;
+            }
+        }
 
+        if on_bottom_edge {
+            game_state.bug_resources.push(Resouce::Egg);
+        }
         game_state.bug_resources.push(Resouce::Egg);
         true
     }
@@ -74,7 +77,17 @@ impl PassiveAbility for BugBase1Passive {
 
 impl PassiveAbility for BugBase2Passive {
     fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        //TODO: bonus on map edge
+        let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
+        let mut on_bottom_edge = false;
+        for (loc, _) in footprint {
+            if loc.0 == game_state.map.len() - 1 {
+                on_bottom_edge = true;
+            }
+        }
+
+        if on_bottom_edge {
+            game_state.bug_resources.push(Resouce::Egg);
+        }
 
         game_state.bug_resources.push(Resouce::Egg);
         game_state.bug_resources.push(Resouce::Egg);
@@ -84,7 +97,17 @@ impl PassiveAbility for BugBase2Passive {
 
 impl PassiveAbility for BugBase3Passive {
     fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        //TODO: bonus on map edge
+        let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
+        let mut on_bottom_edge = false;
+        for (loc, _) in footprint {
+            if loc.0 == game_state.map.len() - 1 {
+                on_bottom_edge = true;
+            }
+        }
+
+        if on_bottom_edge {
+            game_state.bug_resources.push(Resouce::Egg);
+        }
 
         game_state.bug_resources.push(Resouce::Egg);
         game_state.bug_resources.push(Resouce::Egg);
@@ -92,3 +115,5 @@ impl PassiveAbility for BugBase3Passive {
         true
     }
 }
+
+

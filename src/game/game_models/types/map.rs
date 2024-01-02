@@ -23,6 +23,7 @@ pub trait Extrcator {
     fn get_tile_adjecent_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_tile_adjecent_cornered_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
+    fn get_footprint_tiles_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
     fn get_adjacent_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)>;
 }
 
@@ -237,6 +238,18 @@ impl Extrcator for Map {
         }
 
         tiles
+    }
+
+    fn get_footprint_tiles_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)> {
+        let mut out = vec![];
+        for (index, row) in self.iter().enumerate() {
+            for (inner_index, col) in row.iter().enumerate() {
+                if col.eq(id) {
+                    out.push(((index, inner_index), TileOption::Id(id.clone())));
+                }
+            }
+        }
+        out
     }
 
 }

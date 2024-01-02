@@ -31,5 +31,5 @@ pub enum BugMove {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum BugMainPhaseMove {
     PlaceUnit(StructureSelector, i32, i32),
-    ActivateAbility(StructureSelector, Resouce),
+    ActivateAbility(String, i32), // id and index of ability. usually 0
 }
