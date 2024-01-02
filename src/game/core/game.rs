@@ -191,15 +191,18 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
                 if let TechMove::SetupMove(x, y) = tech_move {
                     if let Some(placer) = placers.get(&StructureSelector::TechBase) {
                         if let Some(placer) = placer {
+                            let id = Uuid::new_v4().to_string();
                             let structure = NewStructure {
                                 structure_type: StructureSelector::TechBase,
-                                id: Uuid::new_v4().to_string(),
+                                id: id.clone(),
                                 x: None,
                                 y: None,
                             };
-                            if let Ok(_) = placer.place(NewTile::Structure(structure), state, *x, *y) {
-                                setup_move = true;
-                            }
+                            match placer.place(NewTile::Structure(structure), state, *x, *y) {
+                                Ok(s) => state.tiles.insert(id, s),
+                                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+                            };
+                            setup_move = true;
                         }
                     }
                 }
@@ -212,15 +215,18 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
                 if let BugMove::SetupMove(x, y) = bug_move {
                     if let Some(placer) = placers.get(&StructureSelector::BugBase1) {
                         if let Some(placer) = placer {
+                            let id = Uuid::new_v4().to_string();
                             let structure = NewStructure {
                                 structure_type: StructureSelector::BugBase1,
-                                id: Uuid::new_v4().to_string(),
+                                id: id.clone(),
                                 x: None,
                                 y: None,
                             };
-                            if let Ok(_) = placer.place(NewTile::Structure(structure), state, *x, *y) {
-                                setup_move = true;
-                            }
+                            match placer.place(NewTile::Structure(structure), state, *x, *y) {
+                                Ok(s) => state.tiles.insert(id, s),
+                                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+                            };
+                            setup_move = true;
                         }
                     }
                 }
