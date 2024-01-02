@@ -46,6 +46,7 @@ pub struct Structure {
 pub struct StructureRecepie {
     pub cost: Vec<Resouce>,
     pub footprint: Vec<Vec<bool>>,
+    pub spaced_placement: bool,
     pub stats: StructureStats,
     pub activated_costs: Vec<Vec<Resouce>>,
 }
