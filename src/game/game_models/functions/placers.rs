@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::{types::{structure::{StructureSelector, Structure}, tile_traits::{Placable, Tile, NewTile}, map::{MapError, Extrcator, TileOption}}, data::structures::{recepies::get_recepie, spaced_placements::get_spaced_placements}}, core::game_state::GameState};
+use crate::game::{game_models::{types::{structure::{StructureSelector, Structure}, tile_traits::{Placable, Tile, NewTile}, map::{MapError, TileOption, Interactor}}, data::structures::{recepies::get_recepie, spaced_placements::get_spaced_placements}}, core::game_state::GameState};
 
 
 pub struct BasicPlacer;

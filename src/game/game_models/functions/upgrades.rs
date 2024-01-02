@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::Upgradable, resource::Resouce, map::Extrcator}, core::game_state::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::Upgradable, resource::Resouce, map::Interactor}, core::game_state::GameState};
 
 
 

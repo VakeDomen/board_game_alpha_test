@@ -171,10 +171,11 @@ impl Interactor for Map {
 
     fn remove_tile(&mut self, id: String) -> bool {
         let mut found = false;
-        for (index, row) in self.iter().enumerate() {
-            for (inner_index, mut col) in row.iter().enumerate() {
-                if col.eq(&id) {
+        for row in self {
+            for col in row {
+                if *col == id {
                     *col = "".to_string();
+                    found = true;
                 }
             }
         }
