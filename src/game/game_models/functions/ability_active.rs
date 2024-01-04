@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::{types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resource, map::Interactor}, data::structures::recepies::get_recepie}, core::game_state::GameState};
+use crate::game::{game_models::{types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resource, map::{Interactor, TileOption}}, data::structures::recepies::get_recepie}, core::game_state::GameState};
 
 pub struct TechRefinery1Active;
 pub struct TechRefinery2Active;
@@ -73,8 +73,16 @@ impl ActiveAbility for TechNukeActive {
             Some(y) => y.parse().unwrap(),
             None => return false,
         };
-        todo!("Shoot nuke");
+        
+        let tiles_to_destroy = game_state.map.get_tiles_in_range(x, y, 3);
+        for (_, tile) in tiles_to_destroy {
+            if let TileOption::Id(id) = tile {
+                game_state.tiles.remove(&id);
+                game_state.map.remove_tile(id);
+            }
+        }
         true
+
     }
 }
 
