@@ -11,6 +11,7 @@ pub enum GameCommand {
     PlaceStructure(StructureSelector, i32, i32),
     PlaceUnit(UnitSelector, i32, i32, i32),
     NextPhase,
+    GetRecepies,
     Undo,
     InvalidCommand(String),
 }
@@ -82,6 +83,7 @@ impl From<String> for GameCommand {
                 }
             },
             "NextPhase" => Self::NextPhase,
+            "GetRecepies" => Self::GetRecepies,
             "Undo" => Self::Undo,
             _ => Self::InvalidCommand("Command not found".to_string()),
         }

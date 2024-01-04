@@ -1,7 +1,7 @@
 use crate::{
     server::messages::wss_message::WSSMessage, 
     storage::operations::game::{get_running_game_by_name, replace_game}, 
-    game::{core::{types::moves::{Move, TechMove, BugMove, TechMainPhaseMove, BugMainPhaseMove}, game::Player}, game_models::types::{unit::UnitSelector, structure::StructureSelector}}
+    game::{core::{types::moves::{Move, TechMove, BugMove, TechMainPhaseMove, BugMainPhaseMove}, game::Player}, game_models::{data::structures::recepies::get_recepies as structure_recepies, types::{unit::UnitSelector, structure::StructureSelector}}}
 };
 
 
@@ -109,4 +109,9 @@ pub fn undo_move(game_name: String) -> WSSMessage {
     }
     replace_game(game_name, game.clone());
     WSSMessage::State(game)
+}
+
+pub fn get_recepies(_: String) -> WSSMessage {
+    let recepies = structure_recepies();
+    WSSMessage::StructureRecepeies(recepies)
 }

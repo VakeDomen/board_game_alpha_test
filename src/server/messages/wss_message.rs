@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use serde::Serialize;
 use serde_any::Format;
 use tokio_tungstenite::tungstenite::Message;
 
 
-use crate::game::core::{lobby::new_game::NewGame, game::Game};
+use crate::game::{core::{lobby::new_game::NewGame, game::Game}, game_models::types::structure::{StructureRecepie, StructureSelector}};
 
 use super::{control_commands::ControlCommand, game_commands::GameCommand};
 
@@ -19,6 +21,7 @@ pub enum WSSMessage {
     Error(String),
     NewGame(NewGame),
     State(Game),
+    StructureRecepeies(HashMap<StructureSelector, StructureRecepie>),
     Lobby(Vec<NewGame>),
     Running(Vec<Game>),
     Unauthorized,
