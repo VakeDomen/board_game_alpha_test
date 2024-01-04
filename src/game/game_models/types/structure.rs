@@ -47,6 +47,8 @@ pub struct Structure {
     pub activation_resources: Vec<Resource>,
     pub exhausted: bool,
     pub additional_data: HashMap<String, String>,
+    pub dmg_delt: i32,
+    pub dmg_recieved: i32,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -70,6 +72,8 @@ impl From<NewStructure> for Structure {
             activation_resources: vec![],
             exhausted: false,
             additional_data: HashMap::new(),
+            dmg_delt: 0,
+            dmg_recieved: 0,
         }
     }
 }

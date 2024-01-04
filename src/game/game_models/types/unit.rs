@@ -29,6 +29,8 @@ pub struct Unit {
     pub x: i32,
     pub y: i32,
     pub exhausted: bool,
+    pub dmg_delt: i32,
+    pub dmg_recieved: i32,
 }
 
 impl From<NewUnit> for Unit {
@@ -40,6 +42,8 @@ impl From<NewUnit> for Unit {
             x: nu.x.unwrap(),
             y: nu.y.unwrap(),
             exhausted: false,
+            dmg_delt: 0,
+            dmg_recieved: 0,
         }
     }
 }

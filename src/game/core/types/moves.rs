@@ -13,7 +13,7 @@ pub enum Move {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TechMove {
     SetupMove(i32, i32),
-    DmgMove(i32, i32, i32), // initiator id, target id, dmg count
+    DmgMove(String, String, i32), // initiator id, target id, dmg count
     MainMove(TechMainPhaseMove),
 }
 
@@ -27,7 +27,7 @@ pub enum TechMainPhaseMove {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum BugMove {
     SetupMove(i32, i32),
-    DmgMove(i32, i32, i32), // initiator id, target id, dmg count
+    DmgMove(String, String, i32), // initiator id, target id, dmg count
     MainMove(BugMainPhaseMove),
 }
 

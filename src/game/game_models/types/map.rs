@@ -1,5 +1,3 @@
-use std::ops::Index;
-
 pub type Map = Vec<Vec<String>>;
 
 

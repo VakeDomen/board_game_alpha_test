@@ -225,6 +225,37 @@ fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
 }
 
 fn apply_dmg(state: &mut GameState) -> Result<(), ProgressionError> {
+    let mut que = mem::take(&mut state.move_que);
+    for potential_move in &mut que {
+        if state.player_turn == Player::First {
+            if let Move::Tech(tech_move) = potential_move {
+                if let TechMove::DmgMove(initiator_id, target_id, dmg) = tech_move {
+                    let initiator = match state.tiles.get_mut(initiator_id) {
+                        Some(i) => match i {
+                            Tile::Structure(s) => s,
+                            Tile::Unit(_) => todo!(),
+                        },
+                        None => return Err(ProgressionError::NoDmgInitiatorFound),
+                    };
+                    // let target = match state.tiles.get_mut(initiator_id) {
+                    //     Some(i) => i,
+                    //     None => return Err(ProgressionError::NoDmgTargetFound),
+                    // };
+                    let true_initiator = initiator;
+                }
+            }
+            continue;
+        }
+
+        if state.player_turn == Player::Second {
+            if let Move::Bug(bug_move) = potential_move {
+                if let BugMove::DmgMove(initiator_id, target_id, dmg) = bug_move {
+                    
+                }
+            }
+        }
+    }  
+    state.move_que = que;
     Ok(())
 }
 
@@ -515,4 +546,6 @@ pub enum ProgressionError {
     CantFindStructure(String),
     CantActivateAbility(String),
     CantPlaceUnit(MapError),
+    NoDmgInitiatorFound,
+    NoDmgTargetFound,
 }

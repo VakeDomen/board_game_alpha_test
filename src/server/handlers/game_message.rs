@@ -78,7 +78,6 @@ pub fn place_structure(game_name: String, selector: StructureSelector, x: i32, y
     } else {
         WSSMessage::Error("No build command for bug player".to_owned())
     }
-
 }
 
 
