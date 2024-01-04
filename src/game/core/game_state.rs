@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::game::game_models::types::{resource::Resouce, map::Map, tile_traits::Tile};
+use crate::game::game_models::types::{resource::Resource, map::Map, tile_traits::Tile};
 
 use super::{game::{Player, TurnPhase}, types::moves::Move};
 
@@ -16,8 +16,8 @@ pub struct GameState {
     pub tiles: HashMap<String, Tile>,
     pub move_que: Vec<Move>,
     pub executed_moves: Vec<Move>,
-    pub tech_resources: Vec<Resouce>,
-    pub bug_resources: Vec<Resouce>,
+    pub tech_resources: Vec<Resource>,
+    pub bug_resources: Vec<Resource>,
     pub map: Map,
 }
 

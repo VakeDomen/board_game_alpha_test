@@ -1,95 +1,95 @@
 use std::collections::HashMap;
 
-use crate::game::game_models::types::{resource::Resouce, structure::StructureSelector};
+use crate::game::game_models::types::{resource::Resource, structure::StructureSelector};
 
 
-pub fn get_costs() -> HashMap<StructureSelector, Vec<Resouce>> {
+pub fn get_costs() -> HashMap<StructureSelector, Vec<Resource>> {
     let mut hm = HashMap::new();
     hm.insert(StructureSelector::BugBase1, vec![]);
     hm.insert(StructureSelector::BugBase2, vec![]);
     hm.insert(StructureSelector::BugBase3, vec![]);
     hm.insert(StructureSelector::TechBase, vec![]);
     hm.insert(StructureSelector::TechRoad, vec![
-        Resouce::Gold, 
+        Resource::Gold, 
     ]);
     hm.insert(StructureSelector::TechMine1, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
 
     ]);
     hm.insert(StructureSelector::TechMine2, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
-        Resouce::Metal,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
     ]);
     hm.insert(StructureSelector::TechRefinery1, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
     ]);
     hm.insert(StructureSelector::TechRefinery2, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
-        Resouce::Metal,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
     ]);
     hm.insert(StructureSelector::TechMarket, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
-        Resouce::Metal,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
     ]);
     hm.insert(StructureSelector::TechTurret1, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
-        Resouce::Metal,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
     ]);
     hm.insert(StructureSelector::TechTurret2, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
-        Resouce::Metal,
-        Resouce::Metal,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
+        Resource::Metal,
     ]);
     hm.insert(StructureSelector::TechArtillery1, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
-        Resouce::Metal,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
     ]);
     hm.insert(StructureSelector::TechArtillery2, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold,
-        Resouce::Metal,
-        Resouce::Metal,
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
+        Resource::Metal,
     ]);
     hm.insert(StructureSelector::TechWall1, vec![
-        Resouce::Gold, 
+        Resource::Gold, 
     ]);
     hm.insert(StructureSelector::TechNuke, vec![
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Gold, 
-        Resouce::Metal, 
-        Resouce::Metal, 
-        Resouce::Metal, 
-        Resouce::Metal, 
-        Resouce::Metal, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Metal, 
+        Resource::Metal, 
+        Resource::Metal, 
+        Resource::Metal, 
+        Resource::Metal, 
     ]);
     hm
 }

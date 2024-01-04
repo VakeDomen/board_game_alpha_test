@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::game::game_models::data::structures::stats::StructureStats;
 
-use super::resource::Resouce;
+use super::resource::Resource;
 
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash, Deserialize)]
@@ -44,19 +44,19 @@ pub struct Structure {
     pub x: i32,
     pub y: i32,
     pub activated: bool,
-    pub activation_resources: Vec<Resouce>,
+    pub activation_resources: Vec<Resource>,
     pub exhausted: bool,
     pub additional_data: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct StructureRecepie {
-    pub cost: Vec<Resouce>,
+    pub cost: Vec<Resource>,
     pub footprint: Vec<Vec<bool>>,
     pub required_spaced_placement: bool,
     pub required_road_connection: bool,
     pub stats: StructureStats,
-    pub activated_costs: Vec<Vec<Resouce>>,
+    pub activated_costs: Vec<Vec<Resource>>,
 }
 
 impl From<NewStructure> for Structure {

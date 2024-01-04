@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::{types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resouce, map::Interactor}, data::structures::recepies::get_recepie}, core::game_state::GameState};
+use crate::game::{game_models::{types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resource, map::Interactor}, data::structures::recepies::get_recepie}, core::game_state::GameState};
 
 pub struct TechRefinery1Active;
 pub struct TechRefinery2Active;
@@ -33,13 +33,13 @@ pub fn get_active_abilities() -> HashMap<StructureSelector, Option<Box<dyn Activ
 impl ActiveAbility for BugBase3Active {
     fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         if !self.can_trigger(game_state, structure, &vec![
-            Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, 
-            Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, Resouce::Corpse, 
+            Resource::Corpse, Resource::Corpse, Resource::Corpse, Resource::Corpse, Resource::Corpse, 
+            Resource::Corpse, Resource::Corpse, Resource::Corpse, Resource::Corpse, Resource::Corpse, 
         ]) {
             return false;
         }
 
-        game_state.bug_resources.push(Resouce::GiantEgg);
+        game_state.bug_resources.push(Resource::GiantEgg);
 
         structure.structure_type = StructureSelector::BugBase2;
         game_state.map.remove_tile(structure.id.clone());
@@ -54,7 +54,7 @@ impl ActiveAbility for BugBase3Active {
 
 impl ActiveAbility for TechNukeActive {
     fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
-        if !self.can_trigger(game_state, structure, &vec![Resouce::Metal, Resouce::Metal, Resouce::Metal]) {
+        if !self.can_trigger(game_state, structure, &vec![Resource::Metal, Resource::Metal, Resource::Metal]) {
             return false;
         }
 
@@ -81,10 +81,10 @@ impl ActiveAbility for TechNukeActive {
 impl ActiveAbility for TechMarketActive {
     fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
         let mut trigger_mode = 0;
-        if self.can_trigger(game_state, structure, &vec![Resouce::Gold]) {
+        if self.can_trigger(game_state, structure, &vec![Resource::Gold]) {
             trigger_mode = 1;
         }
-        if self.can_trigger(game_state, structure, &vec![Resouce::Metal]) {
+        if self.can_trigger(game_state, structure, &vec![Resource::Metal]) {
             trigger_mode = 2;
         }
         if trigger_mode == 0 {
@@ -108,9 +108,9 @@ impl ActiveAbility for TechMarketActive {
 
         // sell metal
         if trigger_mode == 2 {
-            game_state.tech_resources.push(Resouce::Gold);
-            game_state.tech_resources.push(Resouce::Gold);
-            game_state.tech_resources.push(Resouce::Gold);            
+            game_state.tech_resources.push(Resource::Gold);
+            game_state.tech_resources.push(Resource::Gold);
+            game_state.tech_resources.push(Resource::Gold);            
         }
         
         true
@@ -120,14 +120,14 @@ impl ActiveAbility for TechMarketActive {
 
 impl ActiveAbility for TechRefinery2Active {
     fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
-        if !self.can_trigger(game_state, structure, &vec![Resouce::Gold]) {
+        if !self.can_trigger(game_state, structure, &vec![Resource::Gold]) {
             return false;
         }
 
         structure.activated = false;
         structure.activation_resources = vec![];
-        game_state.tech_resources.push(Resouce::Metal);
-        game_state.tech_resources.push(Resouce::Metal);
+        game_state.tech_resources.push(Resource::Metal);
+        game_state.tech_resources.push(Resource::Metal);
 
         true
     }
@@ -135,17 +135,17 @@ impl ActiveAbility for TechRefinery2Active {
 
 impl ActiveAbility for TechRefinery1Active {
     fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
-        if !self.can_trigger(game_state, structure, &vec![Resouce::Gold]) {
+        if !self.can_trigger(game_state, structure, &vec![Resource::Gold]) {
             return false;
         }
         structure.activated = false;
         structure.activation_resources = vec![];
-        game_state.tech_resources.push(Resouce::Metal);
+        game_state.tech_resources.push(Resource::Metal);
         true
     }
 }
 
-pub fn contains_required_resources(game_resources: &Vec<Resouce>, required_resources: &Vec<Resouce>) -> bool {
+pub fn contains_required_resources(game_resources: &Vec<Resource>, required_resources: &Vec<Resource>) -> bool {
     let game_counts = to_counts(game_resources);
     let required_counts = to_counts(required_resources);
 
@@ -153,8 +153,8 @@ pub fn contains_required_resources(game_resources: &Vec<Resouce>, required_resou
     required_counts.into_iter().all(|(res, count)| game_counts.get(&res).unwrap_or(&0) >= &count)
 }
 
-// Function to convert a Vec<Resouce> into a HashMap<Resouce, i32> to count occurrences
-fn to_counts(resources: &Vec<Resouce>) -> HashMap<Resouce, i32> {
+// Function to convert a Vec<Resource> into a HashMap<Resource, i32> to count occurrences
+fn to_counts(resources: &Vec<Resource>) -> HashMap<Resource, i32> {
     let mut counts = HashMap::new();
     for resource in resources {
         *counts.entry(resource.clone()).or_insert(0) += 1;
@@ -163,7 +163,7 @@ fn to_counts(resources: &Vec<Resouce>) -> HashMap<Resouce, i32> {
 }
 
 
-pub fn remove_resources(game_resources: &mut Vec<Resouce>, required_resources: &Vec<Resouce>) -> bool {
+pub fn remove_resources(game_resources: &mut Vec<Resource>, required_resources: &Vec<Resource>) -> bool {
     let mut required_counts = to_counts(required_resources);
 
     // Check if we have enough resources to remove

@@ -1,21 +1,21 @@
 use std::collections::HashMap;
 
-use crate::game::game_models::types::{resource::Resouce, unit::UnitSelector};
+use crate::game::game_models::types::{resource::Resource, unit::UnitSelector};
 
 
-pub fn get_costs() -> HashMap<UnitSelector, Vec<Resouce>> {
+pub fn get_costs() -> HashMap<UnitSelector, Vec<Resource>> {
     let mut hm = HashMap::new();
     hm.insert(UnitSelector::BugSoldierLV1, vec![
-        Resouce::Egg, 
+        Resource::Egg, 
     ]);
     hm.insert(UnitSelector::BugSoldierLV2, vec![
-        Resouce::Egg, 
-        Resouce::Egg, 
+        Resource::Egg, 
+        Resource::Egg, 
     ]);
     hm.insert(UnitSelector::BugSoldierLV3, vec![
-        Resouce::Egg, 
-        Resouce::Egg, 
-        Resouce::Egg, 
+        Resource::Egg, 
+        Resource::Egg, 
+        Resource::Egg, 
     ]);
     hm.insert(UnitSelector::BugEliteMelee, vec![]);
     hm.insert(UnitSelector::BugEliteRanged, vec![]);

@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::game::{game_models::functions::ability_active::{contains_required_resources, remove_resources}, core::game_state::GameState};
 
-use super::{structure::{Structure, NewStructure}, resource::Resouce, unit::{NewUnit, Unit}, map::MapError};
+use super::{structure::{Structure, NewStructure}, resource::Resource, unit::{NewUnit, Unit}, map::MapError};
 
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -30,7 +30,7 @@ pub trait Upgradable {
 pub trait ActiveAbility {
     fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool;
     
-    fn activate(&self, game_state: &mut GameState, structure: &mut Structure, payment: Vec<Resouce>) -> bool {
+    fn activate(&self, game_state: &mut GameState, structure: &mut Structure, payment: Vec<Resource>) -> bool {
         if !self.can_activate(game_state, structure, &payment) {
             return false;
         }
@@ -40,11 +40,11 @@ pub trait ActiveAbility {
         }
 
         structure.activated = true;
-        structure.activation_resources.push(Resouce::Gold);
+        structure.activation_resources.push(Resource::Gold);
         
         true
     }
-    fn can_activate(&self, game_state: &GameState, structure: &Structure, payment: &Vec<Resouce>) -> bool {
+    fn can_activate(&self, game_state: &GameState, structure: &Structure, payment: &Vec<Resource>) -> bool {
         if structure.activated {
             return false
         }
@@ -55,7 +55,7 @@ pub trait ActiveAbility {
         true
     }
     
-    fn can_trigger(&self, _: &GameState, structure: &Structure, payment: &Vec<Resouce>) -> bool{
+    fn can_trigger(&self, _: &GameState, structure: &Structure, payment: &Vec<Resource>) -> bool{
         if structure.activated {
             return false
         }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::PassiveAbility, resource::Resouce, map::Interactor}, core::game_state::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::PassiveAbility, resource::Resource, map::Interactor}, core::game_state::GameState};
 
 pub struct BugBase1Passive;
 pub struct BugBase2Passive;
@@ -33,26 +33,26 @@ pub fn get_passive_abilities() -> HashMap<StructureSelector, Option<Box<dyn Pass
 
 impl PassiveAbility for TechBasePassive {
     fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        game_state.tech_resources.push(Resouce::Gold);
-        game_state.tech_resources.push(Resouce::Gold);
-        game_state.tech_resources.push(Resouce::Gold);
+        game_state.tech_resources.push(Resource::Gold);
+        game_state.tech_resources.push(Resource::Gold);
+        game_state.tech_resources.push(Resource::Gold);
         true
     }
 }
 
 impl PassiveAbility for TechMine1Passive {
     fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        game_state.tech_resources.push(Resouce::Gold);
-        game_state.tech_resources.push(Resouce::Gold);
+        game_state.tech_resources.push(Resource::Gold);
+        game_state.tech_resources.push(Resource::Gold);
         true
     }
 }
 
 impl PassiveAbility for TechMine2Passive {
     fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
-        game_state.tech_resources.push(Resouce::Gold);
-        game_state.tech_resources.push(Resouce::Gold);
-        game_state.tech_resources.push(Resouce::Gold);
+        game_state.tech_resources.push(Resource::Gold);
+        game_state.tech_resources.push(Resource::Gold);
+        game_state.tech_resources.push(Resource::Gold);
         true
     }
 }
@@ -68,9 +68,9 @@ impl PassiveAbility for BugBase1Passive {
         }
 
         if on_bottom_edge {
-            game_state.bug_resources.push(Resouce::Egg);
+            game_state.bug_resources.push(Resource::Egg);
         }
-        game_state.bug_resources.push(Resouce::Egg);
+        game_state.bug_resources.push(Resource::Egg);
         true
     }
 }
@@ -86,11 +86,11 @@ impl PassiveAbility for BugBase2Passive {
         }
 
         if on_bottom_edge {
-            game_state.bug_resources.push(Resouce::Egg);
+            game_state.bug_resources.push(Resource::Egg);
         }
 
-        game_state.bug_resources.push(Resouce::Egg);
-        game_state.bug_resources.push(Resouce::Egg);
+        game_state.bug_resources.push(Resource::Egg);
+        game_state.bug_resources.push(Resource::Egg);
         true
     }
 }
@@ -106,12 +106,12 @@ impl PassiveAbility for BugBase3Passive {
         }
 
         if on_bottom_edge {
-            game_state.bug_resources.push(Resouce::Egg);
+            game_state.bug_resources.push(Resource::Egg);
         }
 
-        game_state.bug_resources.push(Resouce::Egg);
-        game_state.bug_resources.push(Resouce::Egg);
-        game_state.bug_resources.push(Resouce::Egg);
+        game_state.bug_resources.push(Resource::Egg);
+        game_state.bug_resources.push(Resource::Egg);
+        game_state.bug_resources.push(Resource::Egg);
         true
     }
 }

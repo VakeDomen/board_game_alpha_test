@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::{Upgradable, Tile}, resource::Resouce, map::{Interactor, TileOption}, unit::UnitSelector}, core::game_state::GameState};
+use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::{Upgradable, Tile}, resource::Resource, map::{Interactor, TileOption}, unit::UnitSelector}, core::game_state::GameState};
 
 
 
@@ -124,7 +124,7 @@ impl Upgradable for RefineryUpgrader {
             return false
         }
 
-        if structure.activation_resources != vec![Resouce::Metal] {
+        if structure.activation_resources != vec![Resource::Metal] {
             return false;
         }
         true
@@ -147,7 +147,7 @@ impl Upgradable for MineUpgrader {
             return false
         }
 
-        if structure.activation_resources != vec![Resouce::Metal] {
+        if structure.activation_resources != vec![Resource::Metal] {
             return false;
         }
         true
@@ -170,7 +170,7 @@ impl Upgradable for TurretUpgrader {
             return false
         }
 
-        if structure.activation_resources != vec![Resouce::Metal] {
+        if structure.activation_resources != vec![Resource::Metal] {
             return false;
         }
         true
@@ -193,7 +193,7 @@ impl Upgradable for AtrileryUpgrader {
             return false
         }
 
-        if structure.activation_resources != vec![Resouce::Metal] {
+        if structure.activation_resources != vec![Resource::Metal] {
             return false;
         }
         true
