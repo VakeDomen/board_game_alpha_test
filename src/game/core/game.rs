@@ -9,7 +9,7 @@ use crate::game::game_models::{
         tile_traits::{Tile, NewTile}, 
         structure::{NewStructure, StructureSelector}, 
         map::{MapError, Interactor, TileOption}, 
-        unit::{UnitSelector, NewUnit, self}
+        unit::{UnitSelector, NewUnit}
     }, 
     functions::{
         upgrades::get_upgraders, 

@@ -55,7 +55,7 @@ pub trait ActiveAbility {
         true
     }
     
-    fn can_trigger(&self, game_state: &GameState, structure: &Structure, payment: &Vec<Resouce>) -> bool{
+    fn can_trigger(&self, _: &GameState, structure: &Structure, payment: &Vec<Resouce>) -> bool{
         if structure.activated {
             return false
         }
