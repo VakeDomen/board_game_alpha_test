@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::{types::{unit::{UnitSelector, Unit}, tile_traits::{Placable, Tile, NewTile}, map::{MapError, TileOption, Interactor}, structure::StructureSelector}, data::structures::{recepies::get_recepie, spaced_placements::get_spaced_placements}, functions::ability_active::remove_resources}, core::game_state::GameState};
+use crate::game::{game_models::{types::{unit::{UnitSelector, Unit}, tile_traits::{Placable, Tile, NewTile}, map::{MapError, TileOption, Interactor}, structure::StructureSelector}, functions::ability_active::remove_resources}, core::game_state::GameState};
 
-use super::{costs::get_costs, footprints::{get_footprints, self}};
+use super::{costs::get_costs, footprints::get_footprints};
 
 
 pub struct BasicBugPlacer;
@@ -25,7 +25,7 @@ impl Placable for BasicBugPlacer {
 
         let mut unit = match new_tile {
             NewTile::Unit(u) => u,
-            NewTile::Structure(s) => return Err(MapError::IncorrectPlacer),
+            NewTile::Structure(_) => return Err(MapError::IncorrectPlacer),
         };
         
         let costs = get_costs();
@@ -59,7 +59,7 @@ impl Placable for BasicBugPlacer {
     fn can_place_on(&self, new_tile: &NewTile, game_state: &GameState, x: i32, y: i32) -> Result<(), MapError> {
         let unit = match new_tile {
             NewTile::Unit(u) => u,
-            NewTile::Structure(s) => return Err(MapError::IncorrectPlacer),
+            NewTile::Structure(_) => return Err(MapError::IncorrectPlacer),
         };
 
         let footprints = get_footprints();
@@ -75,7 +75,7 @@ impl Placable for BasicBugPlacer {
             if !game_state.map[current_check_location.0][current_check_location.1].is_empty() {
                 return Err(MapError::ContructionObstructed);
             }
-            for (location, tile_option) in game_state.map.get_tile_adjacent_cornered(current_check_location.0 as i32, current_check_location.1 as i32) {
+            for (_, tile_option) in game_state.map.get_tile_adjacent_cornered(current_check_location.0 as i32, current_check_location.1 as i32) {
                 if let TileOption::Id(id) = tile_option {
                     match game_state.tiles.get(&id).unwrap() {
                         Tile::Structure(s) => {
@@ -87,7 +87,7 @@ impl Placable for BasicBugPlacer {
                                 return Ok(())
                             }
                         },
-                        Tile::Unit(u) => return Ok(()),
+                        Tile::Unit(_) => return Ok(()),
                     }
                 }
             }

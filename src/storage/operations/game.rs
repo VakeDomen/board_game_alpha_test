@@ -80,16 +80,16 @@ pub fn remove_from_storage(name: String) {
 
 pub fn game_exists(name: String) -> bool {
     let games = MATCHES.lock().unwrap();
-    for game in games.iter().enumerate() {
-        if let MatchState::Lobby(g) = game.1 {
+    for game in games.iter() {
+        if let MatchState::Lobby(g) = game {
             if g.name == name {
-                break;
+                return true;
             }
         }
 
-        if let MatchState::Running(g) = game.1 {
+        if let MatchState::Running(g) = game {
             if g.name == name {
-                break;
+                return true;
             }
         }
     }

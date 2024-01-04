@@ -1,6 +1,7 @@
 pub type Map = Vec<Vec<String>>;
 
 
+#[derive(Debug)]
 pub enum TileOption {
     Id(String), // tile id
     None,
@@ -20,7 +21,7 @@ pub trait Interactor {
     fn get_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
     fn get_rotated_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
     fn get_footprint_tiles_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
-    fn get_adjacent_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)>;
+    fn get_relative_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)>;
 
     fn remove_tile(&mut self, id: String) -> bool;
 }
@@ -45,30 +46,33 @@ impl Interactor for Map {
     // Returns the 4 tiles directly adjacent (up, down, left, right) to the specified location
     fn get_tile_adjacent(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)> {
         let directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]; // Left, Right, Up, Down
-        self.get_adjacent_tiles(x, y, &directions)
+        self.get_relative_tiles(x, y, &directions)
     }
 
     // Returns the 8 tiles surrounding the specified location, including diagonals
     fn get_tile_adjacent_cornered(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)> {
         let directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]; // Including diagonals
-        self.get_adjacent_tiles(x, y, &directions)
+        self.get_relative_tiles(x, y, &directions)
     }
 
     // Returns the 8 tiles surrounding the specified location, including diagonals
     fn get_tile_corners(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)> {
         let directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]; // just diagonals
-        self.get_adjacent_tiles(x, y, &directions)
+        self.get_relative_tiles(x, y, &directions)
     }
 
     // Helper function to get adjacent tiles based on directions
-    fn get_adjacent_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)> {
+    fn get_relative_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)> {
         let mut tiles = Vec::new();
         for &(dx, dy) in directions {
-            let adj_x = x + dx;
-            let adj_y = y + dy;
-            if adj_x >= 0 && adj_x < self[0].len() as i32 && adj_y >= 0 && adj_y < self.len() as i32 {
-                let location = (adj_x as usize, adj_y as usize);
-                let tile_option = match self[adj_y as usize][adj_x as usize].as_str() {
+            let adj_x = (x + dx) as usize;
+            let adj_y = (y + dy) as usize;
+            if 
+                adj_x < self.len() && 
+                adj_y < self[0].len() 
+            {
+                let location = (adj_x, adj_y);
+                let tile_option = match self[adj_x][adj_y].as_str() {
                     "" => TileOption::None,
                     id => TileOption::Id(id.to_string()),
                 };
