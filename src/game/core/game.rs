@@ -72,6 +72,18 @@ pub enum TurnPhase {
 
 
 impl Game {
+
+    pub fn apply_state(&mut self) -> Result<(), ProgressionError> { 
+        let mut current_state = self.states.last_mut().unwrap();
+        match current_state.turn_phase {
+            TurnPhase::Setup => apply_setup(&mut current_state),
+            TurnPhase::Dmg => apply_dmg(&mut current_state),
+            TurnPhase::Triggers => apply_triggers(&mut current_state),
+            TurnPhase::Main => apply_main(&mut current_state),
+            TurnPhase::End => apply_end(&mut current_state),
+        }
+    }
+
     pub fn progress_state(&mut self) -> Result<(), ProgressionError> {
         let mut current_state = self.states.last_mut().unwrap();
         let result = match current_state.turn_phase {
@@ -95,7 +107,40 @@ impl Game {
     }
 }
 
+
+fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    apply_setup(state)?;
+    
+    if state.player_turn == Player::First {
+        state.player_turn = Player::Second;
+    } else {
+        state.player_turn = Player::First;
+        state.turn_phase = TurnPhase::Dmg;
+    }
+    state.move_que = vec![];
+    Ok(None)
+}
+
+fn progress_from_dmg(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    state.turn_phase = TurnPhase::Triggers;
+    Ok(None)
+}
+
+fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    apply_triggers(state)?;
+    state.turn_phase = TurnPhase::Main;
+    Ok(None)
+}
+
+fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    apply_main(state)?;
+    state.turn_phase = TurnPhase::End;
+    Ok(None)
+}
+
 fn progress_from_end(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    apply_end(state)?;
+    
     let mut new_state = state.clone();
 
     // next player turn in the next state
@@ -111,28 +156,43 @@ fn progress_from_end(state: &mut GameState) -> Result<Option<GameState>, Progres
     }
 
     // check for game end
-
     Ok(Some(new_state))
 }
 
-fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+
+
+
+
+
+fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
+    if state.move_que.is_empty() {
+        return Err(ProgressionError::NoBasePlacement);
+    }
+
+    let placers = get_placers();
+
+    let mut setup_move = false;
+
+    // trigger upgrade structs
     let mut que = mem::take(&mut state.move_que);
     for potential_move in &mut que {
         if state.player_turn == Player::First {
             if let Move::Tech(tech_move) = potential_move {
-                if let TechMove::MainMove(main_move) = tech_move {
-                    
-                    // build structures
-                    if let TechMainPhaseMove::Build(selector, x, y) = main_move {
-                        if let Err(value) = build_structure(selector, state, x, y) {
-                            return Err(value);
-                        }
-                    }
-
-                    // activate buildings
-                    if let TechMainPhaseMove::ActivateAbility(id, ability_index, additional_data) = main_move {
-                        if let Err(value) = activate_ability(state, id, ability_index, additional_data)  {
-                            return Err(value);
+                if let TechMove::SetupMove(x, y) = tech_move {
+                    if let Some(placer) = placers.get(&StructureSelector::TechBase) {
+                        if let Some(placer) = placer {
+                            let id = Uuid::new_v4().to_string();
+                            let structure = NewStructure {
+                                structure_type: StructureSelector::TechBase,
+                                id: id.clone(),
+                                x: None,
+                                y: None,
+                            };
+                            match placer.place(NewTile::Structure(structure), state, *x, *y) {
+                                Ok(s) => state.tiles.insert(id, s),
+                                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+                            };
+                            setup_move = true;
                         }
                     }
                 }
@@ -142,17 +202,21 @@ fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, Progre
 
         if state.player_turn == Player::Second {
             if let Move::Bug(bug_move) = potential_move {
-                if let BugMove::MainMove(main_move) = bug_move {
-                    
-                    if let BugMainPhaseMove::ActivateAbility(id, ability_index, additional_data) = main_move {
-                        if let Err(value) = activate_ability(state, id, ability_index, additional_data) {
-                            return Err(value);
-                        }
-                    }
-
-                    if let BugMainPhaseMove::PlaceUnit(unit_selector, x, y, rotation) = main_move {
-                        if let Err(value) = place_unit(unit_selector, rotation, state, x, y) {
-                            return Err(value);
+                if let BugMove::SetupMove(x, y) = bug_move {
+                    if let Some(placer) = placers.get(&StructureSelector::BugBase1) {
+                        if let Some(placer) = placer {
+                            let id = Uuid::new_v4().to_string();
+                            let structure = NewStructure {
+                                structure_type: StructureSelector::BugBase1,
+                                id: id.clone(),
+                                x: None,
+                                y: None,
+                            };
+                            match placer.place(NewTile::Structure(structure), state, *x, *y) {
+                                Ok(s) => state.tiles.insert(id, s),
+                                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+                            };
+                            setup_move = true;
                         }
                     }
                 }
@@ -161,103 +225,19 @@ fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, Progre
     }  
 
     state.move_que = que;
-    state.turn_phase = TurnPhase::End;
-    Ok(None)
-}
 
-fn place_unit(
-    unit_selector: &mut UnitSelector, 
-    rotation: &mut i32, 
-    state: &mut GameState, 
-    x: &mut i32, 
-    y: &mut i32
-) -> Result<(), ProgressionError> {
-    let placers = unit_placers();
-    if let Some(placer) = placers.get(&unit_selector) {
-        if let Some(placer) = placer {
-            // create structure
-            let id = Uuid::new_v4().to_string();
-            let unit = NewUnit {
-                unit_type: unit_selector.clone(),
-                id: id.clone(),
-                x: None,
-                y: None,
-                rotated: (*rotation == 1),
-            };
-            // place it
-            match placer.place(NewTile::Unit(unit), state, *x, *y) {
-                Ok(s) => state.tiles.insert(id, s),
-                Err(e) => return Err(ProgressionError::CantPlaceUnit(e)),
-            };
-        }
+    if !setup_move {
+        return Err(ProgressionError::NoBasePlacement);
     }
+
     Ok(())
 }
 
-fn build_structure(
-    selector: &mut StructureSelector, 
-    state: &mut GameState, 
-    x: &mut i32, 
-    y: &mut i32, 
-) -> Result<(), ProgressionError> {
-    let placers = get_placers();
-    let costs = get_costs();
-    if let Some(placer) = placers.get(&selector) {
-        if let Some(placer) = placer {
-            // create structure
-            let id = Uuid::new_v4().to_string();
-            let structure = NewStructure {
-                structure_type: selector.clone(),
-                id: id.clone(),
-                x: None,
-                y: None,
-            };
-            // place it
-            match placer.place(NewTile::Structure(structure), state, *x, *y) {
-                Ok(s) => state.tiles.insert(id, s),
-                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
-            };
-            // subtract resources
-            remove_resources(
-                &mut state.tech_resources,
-                &costs.get(&selector).unwrap()
-            );
-        }
-    }
+fn apply_dmg(state: &mut GameState) -> Result<(), ProgressionError> {
     Ok(())
 }
 
-fn activate_ability(
-    state: &mut GameState, 
-    id: &mut String, 
-    ability_index: &mut i32, 
-    additional_data: &mut HashMap<String, String>,
-) -> Result<(), ProgressionError> {
-    let ability_costs = get_activation_costs();
-    let actives = get_active_abilities();
-    let tile = match state.tiles.get(id) {
-        Some(s) => s.clone(),
-        None => return Err(ProgressionError::CantFindStructure(id.to_string())),
-    };
-    let mut structure = match tile {
-        Tile::Structure(s) => s,
-        Tile::Unit(_) => return Err(ProgressionError::CantActivateAbility(id.to_string())),
-    };
-    structure.additional_data = additional_data.clone();
-    let cost = ability_costs.get(&structure.structure_type).unwrap();
-    if cost.is_empty() || cost.len() <= *ability_index as usize {
-        return Err(ProgressionError::CantActivateAbility(format!("no ability for {:#?}", structure.structure_type)));
-    }
-    if let Some(active) = actives.get(&structure.structure_type) {
-        if let Some(active) = active {
-            active.activate(state, &mut structure, cost[*ability_index as usize].clone());
-        }
-    }
-    state.tiles.insert(id.to_string(), Tile::Structure(structure));
-    Ok(())
-}
-
-fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
     let upgraders = get_upgraders();
     let passives = get_passive_abilities();
     let actives = get_active_abilities();
@@ -383,47 +363,27 @@ fn progress_from_triggers(state: &mut GameState) -> Result<Option<GameState>, Pr
             
         }
     }
-
-
-    
-    state.turn_phase = TurnPhase::Main;
-    Ok(None)
+    Ok(())
 }
 
-fn progress_from_dmg(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
-    state.turn_phase = TurnPhase::Triggers;
-    Ok(None)
-}
-
-fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
-    if state.move_que.is_empty() {
-        return Err(ProgressionError::NoBasePlacement);
-    }
-
-    let placers = get_placers();
-
-    let mut setup_move = false;
-
-    // trigger upgrade structs
+fn apply_main(state: &mut GameState) -> Result<(), ProgressionError> {
     let mut que = mem::take(&mut state.move_que);
     for potential_move in &mut que {
         if state.player_turn == Player::First {
             if let Move::Tech(tech_move) = potential_move {
-                if let TechMove::SetupMove(x, y) = tech_move {
-                    if let Some(placer) = placers.get(&StructureSelector::TechBase) {
-                        if let Some(placer) = placer {
-                            let id = Uuid::new_v4().to_string();
-                            let structure = NewStructure {
-                                structure_type: StructureSelector::TechBase,
-                                id: id.clone(),
-                                x: None,
-                                y: None,
-                            };
-                            match placer.place(NewTile::Structure(structure), state, *x, *y) {
-                                Ok(s) => state.tiles.insert(id, s),
-                                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
-                            };
-                            setup_move = true;
+                if let TechMove::MainMove(main_move) = tech_move {
+                    
+                    // build structures
+                    if let TechMainPhaseMove::Build(selector, x, y) = main_move {
+                        if let Err(value) = build_structure(selector, state, x, y) {
+                            return Err(value);
+                        }
+                    }
+
+                    // activate buildings
+                    if let TechMainPhaseMove::ActivateAbility(id, ability_index, additional_data) = main_move {
+                        if let Err(value) = activate_ability(state, id, ability_index, additional_data)  {
+                            return Err(value);
                         }
                     }
                 }
@@ -433,43 +393,128 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
 
         if state.player_turn == Player::Second {
             if let Move::Bug(bug_move) = potential_move {
-                if let BugMove::SetupMove(x, y) = bug_move {
-                    if let Some(placer) = placers.get(&StructureSelector::BugBase1) {
-                        if let Some(placer) = placer {
-                            let id = Uuid::new_v4().to_string();
-                            let structure = NewStructure {
-                                structure_type: StructureSelector::BugBase1,
-                                id: id.clone(),
-                                x: None,
-                                y: None,
-                            };
-                            match placer.place(NewTile::Structure(structure), state, *x, *y) {
-                                Ok(s) => state.tiles.insert(id, s),
-                                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
-                            };
-                            setup_move = true;
+                if let BugMove::MainMove(main_move) = bug_move {
+                    
+                    if let BugMainPhaseMove::ActivateAbility(id, ability_index, additional_data) = main_move {
+                        if let Err(value) = activate_ability(state, id, ability_index, additional_data) {
+                            return Err(value);
+                        }
+                    }
+
+                    if let BugMainPhaseMove::PlaceUnit(unit_selector, x, y, rotation) = main_move {
+                        if let Err(value) = place_unit(unit_selector, rotation, state, x, y) {
+                            return Err(value);
                         }
                     }
                 }
             }
         }
     }  
-
     state.move_que = que;
-    
-    if setup_move {
-        if state.player_turn == Player::First {
-            state.player_turn = Player::Second;
-        } else {
-            state.player_turn = Player::First;
-            state.turn_phase = TurnPhase::Dmg;
-        }
-        state.move_que = vec![];
-        Ok(None)
-    } else {
-        Err(ProgressionError::NoBasePlacement)
-    }
+    Ok(())
 }
+
+fn apply_end(_: &mut GameState) -> Result<(), ProgressionError> {
+    Ok(())
+}
+
+
+
+fn place_unit(
+    unit_selector: &mut UnitSelector, 
+    rotation: &mut i32, 
+    state: &mut GameState, 
+    x: &mut i32, 
+    y: &mut i32
+) -> Result<(), ProgressionError> {
+    let placers = unit_placers();
+    if let Some(placer) = placers.get(&unit_selector) {
+        if let Some(placer) = placer {
+            // create structure
+            let id = Uuid::new_v4().to_string();
+            let unit = NewUnit {
+                unit_type: unit_selector.clone(),
+                id: id.clone(),
+                x: None,
+                y: None,
+                rotated: (*rotation == 1),
+            };
+            // place it
+            match placer.place(NewTile::Unit(unit), state, *x, *y) {
+                Ok(s) => state.tiles.insert(id, s),
+                Err(e) => return Err(ProgressionError::CantPlaceUnit(e)),
+            };
+        }
+    }
+    Ok(())
+}
+
+fn build_structure(
+    selector: &mut StructureSelector, 
+    state: &mut GameState, 
+    x: &mut i32, 
+    y: &mut i32, 
+) -> Result<(), ProgressionError> {
+    let placers = get_placers();
+    let costs = get_costs();
+    if let Some(placer) = placers.get(&selector) {
+        if let Some(placer) = placer {
+            // create structure
+            let id = Uuid::new_v4().to_string();
+            let structure = NewStructure {
+                structure_type: selector.clone(),
+                id: id.clone(),
+                x: None,
+                y: None,
+            };
+            // place it
+            match placer.place(NewTile::Structure(structure), state, *x, *y) {
+                Ok(s) => state.tiles.insert(id, s),
+                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
+            };
+            // subtract resources
+            remove_resources(
+                &mut state.tech_resources,
+                &costs.get(&selector).unwrap()
+            );
+        }
+    }
+    Ok(())
+}
+
+fn activate_ability(
+    state: &mut GameState, 
+    id: &mut String, 
+    ability_index: &mut i32, 
+    additional_data: &mut HashMap<String, String>,
+) -> Result<(), ProgressionError> {
+    let ability_costs = get_activation_costs();
+    let actives = get_active_abilities();
+    let tile = match state.tiles.get(id) {
+        Some(s) => s.clone(),
+        None => return Err(ProgressionError::CantFindStructure(id.to_string())),
+    };
+    let mut structure = match tile {
+        Tile::Structure(s) => s,
+        Tile::Unit(_) => return Err(ProgressionError::CantActivateAbility(id.to_string())),
+    };
+    structure.additional_data = additional_data.clone();
+    let cost = ability_costs.get(&structure.structure_type).unwrap();
+    if cost.is_empty() || cost.len() <= *ability_index as usize {
+        return Err(ProgressionError::CantActivateAbility(format!("no ability for {:#?}", structure.structure_type)));
+    }
+    if let Some(active) = actives.get(&structure.structure_type) {
+        if let Some(active) = active {
+            active.activate(state, &mut structure, cost[*ability_index as usize].clone());
+        }
+    }
+    state.tiles.insert(id.to_string(), Tile::Structure(structure));
+    Ok(())
+}
+
+
+
+
 
 #[derive(Debug)]
 pub enum ProgressionError {
