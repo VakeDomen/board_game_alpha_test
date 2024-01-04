@@ -30,6 +30,7 @@ fn handle_game_message(game_name: String, msg: GameCommand) -> WSSMessage {
     match msg {
         GameCommand::GetState => get_state(game_name),
         GameCommand::BaseSetup(x, y) => setup_base(game_name, x, y),
+        GameCommand::Dmg(initiator, target, dmg) => damage(game_name, initiator, target, dmg),
         GameCommand::PlaceTile(selector, x, y, rotate) => place_tile(game_name, selector, x, y, rotate),
         GameCommand::NextPhase => next_phase(game_name),
         GameCommand::ApplyPhase => apply_phase(game_name),

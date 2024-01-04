@@ -11,8 +11,10 @@ use crate::game::game_models::types::tile::TileSelector;
 pub enum GameCommand {
     GetState,
     BaseSetup(i32, i32),
+    Dmg(String, String, i32),
     PlaceTile(TileSelector, i32, i32, i32),
     ActivateAbility(String, i32, HashMap<String, String>),
+
     NextPhase,
     ApplyPhase,
     GetRecepies,
@@ -42,6 +44,19 @@ impl From<String> for GameCommand {
                         Err(_) => return Self::InvalidCommand("Can't parse Y".to_string()),
                     };
                     Self::BaseSetup(x, y)
+                }
+            },
+            "Dmg" => {
+                if tokens.len() != 4 {
+                    Self::InvalidCommand("4 tokens needed ".to_string())
+                } else {
+                    let initiator = tokens[1].to_string();
+                    let target = tokens[2].to_string();
+                    let dmg: i32 = match tokens[3].parse() {
+                        Ok(n) => n,
+                        Err(_) => return Self::InvalidCommand("Can't parse damage".to_string()),
+                    };
+                    Self::Dmg(initiator, target, dmg)
                 }
             },
             "PlaceTile" => {

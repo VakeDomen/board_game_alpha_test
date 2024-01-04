@@ -24,16 +24,19 @@ pub fn setup_base(game_name: String, x: i32, y: i32) -> WSSMessage {
     let mut game = game.unwrap();
 
     let current_state = game.states.last_mut().unwrap();
-    if current_state.player_turn == Player::First {
-        if x > (current_state.map.len() as i32 / 2) {
-            return WSSMessage::Error("Place base on own side".to_string());
+    match current_state.player_turn {
+        Player::First => {
+            if x > (current_state.map.len() as i32 / 2) {
+                return WSSMessage::Error("Place base on own side".to_string());
+            }
+            current_state.move_que.push(Move::Tech(PhaseMove::SetupMove(x, y)));
+        },
+        Player::Second => {
+            if x < (current_state.map.len() as i32 / 2) {
+                return WSSMessage::Error("Place base on own side".to_string());
+            }
+            current_state.move_que.push(Move::Bug(PhaseMove::SetupMove(x, y)));
         }
-        current_state.move_que.push(Move::Tech(PhaseMove::SetupMove(x, y)));
-    } else {
-        if x < (current_state.map.len() as i32 / 2) {
-            return WSSMessage::Error("Place base on own side".to_string());
-        }
-        current_state.move_que.push(Move::Bug(PhaseMove::SetupMove(x, y)));
     }
 
     replace_game(game_name, game.clone());
@@ -49,19 +52,12 @@ pub fn place_tile(game_name: String, selector: TileSelector, x: i32, y: i32, rot
     let mut game = game.unwrap();
     let current_state = game.states.last_mut().unwrap();
 
-    if current_state.player_turn == Player::First {
-
-        current_state.move_que.push(Move::Tech(PhaseMove::MainMove(MainPhaseMove::PlaceTile(selector, x, y, rotate))));
-        replace_game(game_name, game.clone());
-        WSSMessage::State(game)
-
-    } else {
-
-        current_state.move_que.push(Move::Bug(PhaseMove::MainMove(MainPhaseMove::PlaceTile(selector, x, y, rotate))));
-        replace_game(game_name, game.clone());
-        WSSMessage::State(game)
-
+    match current_state.player_turn {
+        Player::First => current_state.move_que.push(Move::Tech(PhaseMove::MainMove(MainPhaseMove::PlaceTile(selector, x, y, rotate)))),
+        Player::Second => current_state.move_que.push(Move::Bug(PhaseMove::MainMove(MainPhaseMove::PlaceTile(selector, x, y, rotate)))),
     }
+    replace_game(game_name, game.clone());
+    WSSMessage::State(game)
 
 }
 
@@ -121,19 +117,29 @@ pub fn activate_ability(game_name: String, tile_id: String, ability_index: i32, 
     let mut game = game.unwrap();
     let current_state = game.states.last_mut().unwrap();
     
-    // Tech
-    if current_state.player_turn == Player::First {
-        
-        current_state.move_que.push(Move::Tech(PhaseMove::MainMove(MainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data))));
-
-        replace_game(game_name, game.clone());
-        WSSMessage::State(game)
-
-    // Bug
-    } else {
-        current_state.move_que.push(Move::Bug(PhaseMove::MainMove(MainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data))));
-        WSSMessage::State(game)
+    match current_state.player_turn {
+        Player::First => current_state.move_que.push(Move::Tech(PhaseMove::MainMove(MainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data)))),
+        Player::Second => current_state.move_que.push(Move::Bug(PhaseMove::MainMove(MainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data)))),
     }
+    replace_game(game_name, game.clone());
+    WSSMessage::State(game)
 
+}
+
+pub fn damage(game_name: String, initiator: String, target: String, dmg: i32) -> WSSMessage {
+    let game = get_running_game_by_name(&game_name);
+    
+    if game.is_none() {
+        return WSSMessage::Error("Game not fund".to_string());
+    }
+    let mut game = game.unwrap();
+    let current_state = game.states.last_mut().unwrap();
+    
+    match current_state.player_turn {
+        Player::First => current_state.move_que.push(Move::Tech(PhaseMove::DmgMove(initiator, target, dmg))),
+        Player::Second => current_state.move_que.push(Move::Bug(PhaseMove::DmgMove(initiator, target, dmg))),
+    }
+    replace_game(game_name, game.clone());
+    WSSMessage::State(game)
 }
 
