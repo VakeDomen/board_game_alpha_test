@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::game::game_models::data::stats::TileStats;
+use crate::game::{game_models::data::stats::TileStats, core::game::Player};
 
 use super::resource::Resource;
 
@@ -35,6 +35,7 @@ pub enum TileSelector {
 
 #[derive(Debug, Clone)]
 pub struct NewTile {
+    pub owner: Player,
     pub tile_type: TileSelector,
     pub id: String,
     pub rotated: bool,
@@ -45,6 +46,7 @@ pub struct NewTile {
 
 #[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
 pub struct Tile {
+    pub owner: Player,
     pub tile_type: TileSelector,
     pub id: String,
     pub rotated: bool,
@@ -71,6 +73,7 @@ pub struct TileRecepie {
 impl From<NewTile> for Tile {
     fn from(ns: NewTile) -> Self {
         Self {
+            owner: ns.owner,
             tile_type: ns.tile_type,
             id: ns.id,
             rotated: ns.rotated,

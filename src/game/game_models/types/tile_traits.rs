@@ -10,14 +10,14 @@ pub trait Placable {
 }
 
 pub trait Upgradable {
-    fn upgrade(&self, game_state: &mut GameState, structure: &mut Tile) -> bool;
-    fn can_upgrade(&self, game_state: &GameState, structure: &mut Tile) -> bool;
+    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile) -> bool;
+    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile) -> bool;
 }
 
 pub trait ActiveAbility {
-    fn trigger(&self, game_state: &mut GameState, structure: &mut Tile) -> bool;
-    fn activate(&self, game_state: &mut GameState, structure: &mut Tile, payment: Vec<Resource>) -> bool {
-        if !self.can_activate(game_state, structure, &payment) {
+    fn trigger(&self, game_state: &mut GameState, tile: &mut Tile) -> bool;
+    fn activate(&self, game_state: &mut GameState, tile: &mut Tile, payment: Vec<Resource>) -> bool {
+        if !self.can_activate(game_state, tile, &payment) {
             return false;
         }
 
@@ -25,15 +25,18 @@ pub trait ActiveAbility {
             return false;
         }
 
-        structure.activated = true;
-        structure.activation_resources = payment;
+        tile.activated = true;
+        tile.activation_resources = payment;
         
         true
     }
 
 
-    fn can_activate(&self, game_state: &GameState, structure: &Tile, payment: &Vec<Resource>) -> bool {
-        if structure.activated {
+    fn can_activate(&self, game_state: &GameState, tile: &Tile, payment: &Vec<Resource>) -> bool {
+        if tile.owner != game_state.player_turn {
+            return false;
+        }
+        if tile.activated {
             return false
         }
 
@@ -43,12 +46,16 @@ pub trait ActiveAbility {
         true
     }
     
-    fn can_trigger(&self, _: &GameState, structure: &Tile, payment: &Vec<Resource>) -> bool{
-        if structure.activated {
+    fn can_trigger(&self, game_state: &GameState, tile: &Tile, payment: &Vec<Resource>) -> bool{
+        if tile.owner != game_state.player_turn {
+            return false;
+        }
+        
+        if tile.activated {
             return false
         }
 
-        if !contains_required_resources(&structure.activation_resources, &payment) {
+        if !contains_required_resources(&tile.activation_resources, &payment) {
             return false;
         }
         true
@@ -56,5 +63,5 @@ pub trait ActiveAbility {
 }
 
 pub trait PassiveAbility {
-    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Tile) -> bool;
+    fn activate_passive(&self, game_state: &mut GameState, tile: &mut Tile) -> bool;
 }

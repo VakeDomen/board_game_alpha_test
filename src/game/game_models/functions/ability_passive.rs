@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{tile::{TileSelector, Tile}, tile_traits::PassiveAbility, resource::Resource, map::Interactor}, core::game_state::GameState};
+use crate::game::{game_models::types::{tile::{TileSelector, Tile}, tile_traits::PassiveAbility, resource::Resource, map::Interactor}, core::{game_state::GameState, game::Player}};
 
 
 pub struct BugBase1Passive;
@@ -33,7 +33,10 @@ pub fn get_passive_abilities() -> HashMap<TileSelector, Option<Box<dyn PassiveAb
 }
 
 impl PassiveAbility for TechBasePassive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Tile) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if game_state.player_turn != tile.owner {
+            return false;
+        }
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
@@ -42,7 +45,10 @@ impl PassiveAbility for TechBasePassive {
 }
 
 impl PassiveAbility for TechMine1Passive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Tile) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if game_state.player_turn != tile.owner {
+            return false;
+        }
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
         true
@@ -50,7 +56,10 @@ impl PassiveAbility for TechMine1Passive {
 }
 
 impl PassiveAbility for TechMine2Passive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Tile) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if game_state.player_turn != tile.owner {
+            return false;
+        }
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
@@ -59,8 +68,11 @@ impl PassiveAbility for TechMine2Passive {
 }
 
 impl PassiveAbility for BugBase1Passive {
-    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Tile) -> bool {
-        let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
+    fn activate_passive(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if game_state.player_turn != tile.owner {
+            return false;
+        }
+        let footprint = game_state.map.get_footprint_tiles_by_id(&tile.id);
         let mut on_bottom_edge = false;
         for (loc, _) in footprint {
             if loc.0 == game_state.map.len() - 1 {
@@ -77,8 +89,11 @@ impl PassiveAbility for BugBase1Passive {
 }
 
 impl PassiveAbility for BugBase2Passive {
-    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Tile) -> bool {
-        let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
+    fn activate_passive(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if game_state.player_turn != tile.owner {
+            return false;
+        }
+        let footprint = game_state.map.get_footprint_tiles_by_id(&tile.id);
         let mut on_bottom_edge = false;
         for (loc, _) in footprint {
             if loc.0 == game_state.map.len() - 1 {
@@ -97,8 +112,11 @@ impl PassiveAbility for BugBase2Passive {
 }
 
 impl PassiveAbility for BugBase3Passive {
-    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Tile) -> bool {
-        let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
+    fn activate_passive(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if game_state.player_turn != tile.owner {
+            return false;
+        }
+        let footprint = game_state.map.get_footprint_tiles_by_id(&tile.id);
         let mut on_bottom_edge = false;
         for (loc, _) in footprint {
             if loc.0 == game_state.map.len() - 1 {

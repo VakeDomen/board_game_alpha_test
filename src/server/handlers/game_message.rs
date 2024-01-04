@@ -1,6 +1,6 @@
 use crate::{
     server::messages::wss_message::WSSMessage, 
-    storage::operations::game::{get_running_game_by_name, replace_game}, game::{core::{game::Player, types::moves::{Move, TechMove, BugMove, BugMainPhaseMove, TechMainPhaseMove}}, game_models::{types::tile::TileSelector, data::recepies::get_recepies as tile_recepies}}, 
+    storage::operations::game::{get_running_game_by_name, replace_game}, game::{core::{game::Player, types::moves::{Move, PhaseMove, MainPhaseMove}}, game_models::{types::tile::TileSelector, data::recepies::get_recepies as tile_recepies}}, 
 };
 
 
@@ -28,12 +28,12 @@ pub fn setup_base(game_name: String, x: i32, y: i32) -> WSSMessage {
         if x > (current_state.map.len() as i32 / 2) {
             return WSSMessage::Error("Place base on own side".to_string());
         }
-        current_state.move_que.push(Move::Tech(TechMove::SetupMove(x, y)));
+        current_state.move_que.push(Move::Tech(PhaseMove::SetupMove(x, y)));
     } else {
         if x < (current_state.map.len() as i32 / 2) {
             return WSSMessage::Error("Place base on own side".to_string());
         }
-        current_state.move_que.push(Move::Bug(BugMove::SetupMove(x, y)));
+        current_state.move_que.push(Move::Bug(PhaseMove::SetupMove(x, y)));
     }
 
     replace_game(game_name, game.clone());
@@ -48,14 +48,19 @@ pub fn place_tile(game_name: String, selector: TileSelector, x: i32, y: i32, rot
     }
     let mut game = game.unwrap();
     let current_state = game.states.last_mut().unwrap();
-    if current_state.player_turn == Player::Second {
-        current_state.move_que.push(Move::Bug(BugMove::MainMove(BugMainPhaseMove::PlaceTile(selector, x, y, rotate))));
 
+    if current_state.player_turn == Player::First {
+
+        current_state.move_que.push(Move::Tech(PhaseMove::MainMove(MainPhaseMove::PlaceTile(selector, x, y, rotate))));
         replace_game(game_name, game.clone());
         WSSMessage::State(game)
 
     } else {
-        WSSMessage::Error("No place unit command for tech player".to_owned())
+
+        current_state.move_que.push(Move::Bug(PhaseMove::MainMove(MainPhaseMove::PlaceTile(selector, x, y, rotate))));
+        replace_game(game_name, game.clone());
+        WSSMessage::State(game)
+
     }
 
 }
@@ -119,14 +124,14 @@ pub fn activate_ability(game_name: String, tile_id: String, ability_index: i32, 
     // Tech
     if current_state.player_turn == Player::First {
         
-        current_state.move_que.push(Move::Tech(TechMove::MainMove(TechMainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data))));
+        current_state.move_que.push(Move::Tech(PhaseMove::MainMove(MainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data))));
 
         replace_game(game_name, game.clone());
         WSSMessage::State(game)
 
     // Bug
     } else {
-        current_state.move_que.push(Move::Bug(BugMove::MainMove(BugMainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data))));
+        current_state.move_que.push(Move::Bug(PhaseMove::MainMove(MainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data))));
         WSSMessage::State(game)
     }
 
