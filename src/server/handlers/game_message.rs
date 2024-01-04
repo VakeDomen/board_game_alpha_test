@@ -96,6 +96,19 @@ pub fn next_phase(game_name: String) -> WSSMessage {
     WSSMessage::State(game)
 }
 
+pub fn apply_phase(game_name: String) -> WSSMessage {
+    let game = get_running_game_by_name(&game_name);
+    
+    if game.is_none() {
+        return WSSMessage::Error("Game not fund".to_string());
+    }
+    let mut game = game.unwrap();
+    if let Err(e) = game.apply_state() {
+        return WSSMessage::Error(format!("{:#?}", e));
+    }
+    WSSMessage::State(game)
+}
+
 pub fn undo_move(game_name: String) -> WSSMessage {
     let game = get_running_game_by_name(&game_name);
     

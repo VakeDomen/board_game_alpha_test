@@ -14,6 +14,7 @@ pub enum GameCommand {
     PlaceUnit(UnitSelector, i32, i32, i32),
     ActivateAbility(String, i32, HashMap<String, String>),
     NextPhase,
+    ApplyPhase,
     GetRecepies,
     Undo,
     InvalidCommand(String),
@@ -107,6 +108,7 @@ impl From<String> for GameCommand {
                 }
             },
             "NextPhase" => Self::NextPhase,
+            "ApplyPhase" => Self::ApplyPhase,
             "GetRecepies" => Self::GetRecepies,
             "Undo" => Self::Undo,
             _ => Self::InvalidCommand("Command not found".to_string()),

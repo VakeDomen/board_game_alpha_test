@@ -1,7 +1,9 @@
+use std::ops::Index;
+
 pub type Map = Vec<Vec<String>>;
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TileOption {
     Id(String), // tile id
     None,
@@ -16,11 +18,16 @@ pub trait Interactor {
     fn get_tile_adjacent(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)>;
     fn get_tile_adjacent_cornered(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)>;
     fn get_tile_corners(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)>;
-    fn get_tile_adjecent_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
-    fn get_tile_adjecent_cornered_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
+    fn get_tiles_in_range(&self, x: i32, y: i32, range: i32) -> Vec<(MapLocation, TileOption)>;
     fn get_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
     fn get_rotated_footprint_tiles(&self, x: i32, y: i32, footprint: &Vec<Vec<bool>>) -> Vec<(MapLocation, TileOption)>;
     fn get_footprint_tiles_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
+    
+    fn get_tiles_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
+    fn get_tiles_in_range_by_id(&self, id: &String, range: i32) -> Vec<(MapLocation, TileOption)>;
+    fn get_tile_adjecent_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
+    fn get_tile_adjecent_cornered_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)>;
+    
     fn get_relative_tiles(&self, x: i32, y: i32, directions: &[(i32, i32)]) -> Vec<(MapLocation, TileOption)>;
 
     fn remove_tile(&mut self, id: String) -> bool;
@@ -59,6 +66,56 @@ impl Interactor for Map {
     fn get_tile_corners(&self, x: i32, y: i32) -> Vec<(MapLocation, TileOption)> {
         let directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]; // just diagonals
         self.get_relative_tiles(x, y, &directions)
+    }
+
+    // Returns all tiles within the specified range including corners from the given tile
+    fn get_tiles_in_range(&self, x: i32, y: i32, range: i32) -> Vec<(MapLocation, TileOption)> {
+        let mut tiles = Vec::new();
+
+        // Iterate through each point in the square defined by the range
+        for dx in -range..=range {
+            for dy in -range..=range {
+                // Calculate the absolute position of the adjacent tile
+                let adj_x = (x + dx) as usize;
+                let adj_y = (y + dy) as usize;
+
+                // Check if the adjacent tile is within the bounds of the map
+                if adj_x < self.len() && adj_y < self[0].len() {
+                    let location = (adj_x, adj_y);
+                    let tile_option = match self[adj_x][adj_y].as_str() {
+                        "" => TileOption::None,
+                        id => TileOption::Id(id.to_string()),
+                    };
+                    tiles.push((location, tile_option));
+                } else {
+                    tiles.push(((adj_x as usize, adj_y as usize), TileOption::OutOfBounds));
+                }
+            }
+        }
+        tiles
+    }
+
+    fn get_tiles_in_range_by_id(&self, id: &String, range: i32) -> Vec<(MapLocation, TileOption)> {
+        let footprint = self.get_tiles_by_id(id);
+        let mut tiles = vec![];
+        for (location, _) in footprint.iter() {
+            tiles.append(&mut self.get_tiles_in_range(location.0 as i32, location.1 as i32, range));
+        }
+        tiles.retain(|tile| !footprint.contains(tile));
+        tiles
+
+    }
+
+    fn get_tiles_by_id(&self, id: &String) -> Vec<(MapLocation, TileOption)> {
+        let mut tiles = Vec::new();
+        for (index, row) in self.iter().enumerate() {
+            for (inner_index, col) in row.iter().enumerate() {
+                if col.eq(id) {
+                    tiles.push(((index, inner_index), TileOption::Id(id.to_string())));
+                }
+            }
+        }
+        tiles
     }
 
     // Helper function to get adjacent tiles based on directions

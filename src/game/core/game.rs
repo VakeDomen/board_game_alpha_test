@@ -60,7 +60,6 @@ pub enum Player {
 }
 
 
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TurnPhase {
     Setup,
@@ -110,7 +109,6 @@ impl Game {
 
 fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
     apply_setup(state)?;
-    
     if state.player_turn == Player::First {
         state.player_turn = Player::Second;
     } else {
@@ -122,6 +120,7 @@ fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, Progr
 }
 
 fn progress_from_dmg(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
+    apply_dmg(state)?;
     state.turn_phase = TurnPhase::Triggers;
     Ok(None)
 }
@@ -140,9 +139,7 @@ fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, Progre
 
 fn progress_from_end(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
     apply_end(state)?;
-    
     let mut new_state = state.clone();
-
     // next player turn in the next state
     new_state.turn_phase = TurnPhase::Dmg;
     new_state.move_que = vec![];
@@ -154,15 +151,9 @@ fn progress_from_end(state: &mut GameState) -> Result<Option<GameState>, Progres
     } else {
         new_state.player_turn = Player::First;
     }
-
     // check for game end
     Ok(Some(new_state))
 }
-
-
-
-
-
 
 fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
     if state.move_que.is_empty() {
@@ -236,6 +227,7 @@ fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
 fn apply_dmg(state: &mut GameState) -> Result<(), ProgressionError> {
     Ok(())
 }
+
 
 fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
     let upgraders = get_upgraders();
