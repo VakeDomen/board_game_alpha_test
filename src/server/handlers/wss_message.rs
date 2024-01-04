@@ -3,7 +3,7 @@ use crate::{
     server::messages::{wss_message::WSSMessage, control_commands::ControlCommand, game_commands::GameCommand}
 };
 
-use super::{control_message::{create_game, join_game, start_game, list_lobby, list_running}, game_message::{get_state, setup_base, next_phase, undo_move, get_recepies, activate_ability, apply_phase, place_tile}};
+use super::{control_message::{create_game, join_game, start_game, list_lobby, list_running}, game_message::{get_state, setup_base, next_phase, undo_move, get_recepies, activate_ability, apply_phase, place_tile, damage}};
 
 
 pub fn handle(msg: WSSMessage, socket_id: String) -> WSSMessage {
