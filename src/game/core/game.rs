@@ -1,5 +1,5 @@
 
-use std::mem;
+use std::{mem, collections::HashMap};
 
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
@@ -130,8 +130,8 @@ fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, Progre
                     }
 
                     // activate buildings
-                    if let TechMainPhaseMove::ActivateAbility(id, ability_index) = main_move {
-                        if let Err(value) = activate_ability(state, id, ability_index) {
+                    if let TechMainPhaseMove::ActivateAbility(id, ability_index, additional_data) = main_move {
+                        if let Err(value) = activate_ability(state, id, ability_index, additional_data)  {
                             return Err(value);
                         }
                     }
@@ -144,8 +144,8 @@ fn progress_from_main(state: &mut GameState) -> Result<Option<GameState>, Progre
             if let Move::Bug(bug_move) = potential_move {
                 if let BugMove::MainMove(main_move) = bug_move {
                     
-                    if let BugMainPhaseMove::ActivateAbility(id, ability_index) = main_move {
-                        if let Err(value) = activate_ability(state, id, ability_index) {
+                    if let BugMainPhaseMove::ActivateAbility(id, ability_index, additional_data) = main_move {
+                        if let Err(value) = activate_ability(state, id, ability_index, additional_data) {
                             return Err(value);
                         }
                     }
@@ -231,6 +231,7 @@ fn activate_ability(
     state: &mut GameState, 
     id: &mut String, 
     ability_index: &mut i32, 
+    additional_data: &mut HashMap<String, String>,
 ) -> Result<(), ProgressionError> {
     let ability_costs = get_activation_costs();
     let actives = get_active_abilities();
@@ -242,6 +243,7 @@ fn activate_ability(
         Tile::Structure(s) => s,
         Tile::Unit(_) => return Err(ProgressionError::CantActivateAbility(id.to_string())),
     };
+    structure.additional_data = additional_data.clone();
     let cost = ability_costs.get(&structure.structure_type).unwrap();
     if cost.is_empty() || cost.len() <= *ability_index as usize {
         return Err(ProgressionError::CantActivateAbility(format!("no ability for {:#?}", structure.structure_type)));

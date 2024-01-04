@@ -29,7 +29,6 @@ pub trait Upgradable {
 
 pub trait ActiveAbility {
     fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool;
-    
     fn activate(&self, game_state: &mut GameState, structure: &mut Structure, payment: Vec<Resource>) -> bool {
         if !self.can_activate(game_state, structure, &payment) {
             return false;
@@ -40,10 +39,12 @@ pub trait ActiveAbility {
         }
 
         structure.activated = true;
-        structure.activation_resources.push(Resource::Gold);
+        structure.activation_resources = payment;
         
         true
     }
+
+
     fn can_activate(&self, game_state: &GameState, structure: &Structure, payment: &Vec<Resource>) -> bool {
         if structure.activated {
             return false

@@ -115,3 +115,29 @@ pub fn get_recepies(_: String) -> WSSMessage {
     let recepies = structure_recepies();
     WSSMessage::StructureRecepeies(recepies)
 }
+
+pub fn activate_ability(game_name: String, tile_id: String, ability_index: i32, additional_data: std::collections::HashMap<String, String>) -> WSSMessage {
+    let game = get_running_game_by_name(&game_name);
+    
+    if game.is_none() {
+        return WSSMessage::Error("Game not fund".to_string());
+    }
+    let mut game = game.unwrap();
+    let current_state = game.states.last_mut().unwrap();
+    
+    // Tech
+    if current_state.player_turn == Player::First {
+        
+        current_state.move_que.push(Move::Tech(TechMove::MainMove(TechMainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data))));
+
+        replace_game(game_name, game.clone());
+        WSSMessage::State(game)
+
+    // Bug
+    } else {
+        current_state.move_que.push(Move::Bug(BugMove::MainMove(BugMainPhaseMove::ActivateAbility(tile_id, ability_index, additional_data))));
+        WSSMessage::State(game)
+    }
+
+}
+

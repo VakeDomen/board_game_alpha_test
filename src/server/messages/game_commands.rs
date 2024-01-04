@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::Serialize;
 
 use crate::game::game_models::types::{structure::StructureSelector, unit::UnitSelector};
@@ -10,6 +12,7 @@ pub enum GameCommand {
     BaseSetup(i32, i32),
     PlaceStructure(StructureSelector, i32, i32),
     PlaceUnit(UnitSelector, i32, i32, i32),
+    ActivateAbility(String, i32, HashMap<String, String>),
     NextPhase,
     GetRecepies,
     Undo,
@@ -61,7 +64,7 @@ impl From<String> for GameCommand {
             },
             "PlaceUnit" => {
                 if tokens.len() != 5 {
-                    Self::InvalidCommand(format!("5 tokens needed :{:#?}", tokens))
+                    Self::InvalidCommand("5 tokens needed ".to_string())
                 } else {
                     let unit_selector = match parse_unit_selector(tokens[1]) {
                         Some(s) => s,
@@ -80,6 +83,27 @@ impl From<String> for GameCommand {
                         Err(_) => return Self::InvalidCommand("Can't parse rotation".to_string()),
                     };
                     Self::PlaceUnit(unit_selector, x, y, rotat)
+                }
+            },
+            "ActivateAbility" => {
+                if tokens.len() < 3 {
+                    Self::InvalidCommand("At least 3 tokens needed for ActivateAbility".to_string())
+                } else {
+                    let tile_id = tokens[1].to_string();
+                    let ability_index: i32 = match tokens[2].parse() {
+                        Ok(n) => n,
+                        Err(_) => return Self::InvalidCommand("Can't parse incex value for ActivateAbility".to_string()),
+                    };
+                    let mut params = HashMap::new();
+                    for param in tokens.iter().skip(3) {
+                        let pair: Vec<&str> = param.split('=').collect();
+                        if pair.len() == 2 {
+                            params.insert(pair[0].to_string(), pair[1].to_string());
+                        } else {
+                            return Self::InvalidCommand("Invalid key=value pair for ActivateAbility".to_string());
+                        }
+                    }
+                    Self::ActivateAbility(tile_id, ability_index, params)
                 }
             },
             "NextPhase" => Self::NextPhase,

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::game::game_models::types::structure::{StructureSelector, StructureRecepie};
 
-use super::{stats::get_stats, activation_costs::get_activation_costs, footprints::get_footprints, costs::get_costs, spaced_placements::{get_spaced_placements, self}, road_connection_requirements::get_road_connection_requirements};
+use super::{stats::get_stats, activation_costs::get_activation_costs, footprints::get_footprints, costs::get_costs, spaced_placements::get_spaced_placements, road_connection_requirements::get_road_connection_requirements};
 
 
 
