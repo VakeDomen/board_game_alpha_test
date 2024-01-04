@@ -3,13 +3,13 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::game::game_models::data::structures::stats::StructureStats;
+use crate::game::game_models::data::stats::TileStats;
 
 use super::resource::Resource;
 
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash, Deserialize)]
-pub enum StructureSelector {
+pub enum TileSelector {
     BugBase1,
     BugBase2,
     BugBase3,
@@ -26,21 +26,28 @@ pub enum StructureSelector {
     TechArtillery2,
     TechWall1,
     TechNuke,
+    BugSoldierLV1,
+    BugSoldierLV2,
+    BugSoldierLV3,
+    BugEliteMelee,
+    BugEliteRanged,
 }
 
 #[derive(Debug, Clone)]
-pub struct NewStructure {
-    pub structure_type: StructureSelector,
+pub struct NewTile {
+    pub tile_type: TileSelector,
     pub id: String,
+    pub rotated: bool,
     pub x: Option<i32>,
     pub y: Option<i32>,
 }
 
 
 #[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
-pub struct Structure {
-    pub structure_type: StructureSelector,
+pub struct Tile {
+    pub tile_type: TileSelector,
     pub id: String,
+    pub rotated: bool,
     pub x: i32,
     pub y: i32,
     pub activated: bool,
@@ -52,20 +59,21 @@ pub struct Structure {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct StructureRecepie {
+pub struct TileRecepie {
     pub cost: Vec<Resource>,
     pub footprint: Vec<Vec<bool>>,
     pub required_spaced_placement: bool,
     pub required_road_connection: bool,
-    pub stats: StructureStats,
+    pub stats: TileStats,
     pub activated_costs: Vec<Vec<Resource>>,
 }
 
-impl From<NewStructure> for Structure {
-    fn from(ns: NewStructure) -> Self {
+impl From<NewTile> for Tile {
+    fn from(ns: NewTile) -> Self {
         Self {
-            structure_type: ns.structure_type,
+            tile_type: ns.tile_type,
             id: ns.id,
+            rotated: ns.rotated,
             x: ns.x.unwrap(),
             y: ns.y.unwrap(),
             activated: false,

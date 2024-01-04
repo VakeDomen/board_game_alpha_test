@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{structure::{StructureSelector, Structure}, tile_traits::PassiveAbility, resource::Resource, map::Interactor}, core::game_state::GameState};
+use crate::game::{game_models::types::{tile::{TileSelector, Tile}, tile_traits::PassiveAbility, resource::Resource, map::Interactor}, core::game_state::GameState};
+
 
 pub struct BugBase1Passive;
 pub struct BugBase2Passive;
@@ -10,29 +11,29 @@ pub struct TechMine1Passive;
 pub struct TechMine2Passive;
 
 
-pub fn get_passive_abilities() -> HashMap<StructureSelector, Option<Box<dyn PassiveAbility>>> {
-    let mut hm: HashMap<StructureSelector, Option<Box<dyn PassiveAbility>>> = HashMap::new();
-    hm.insert(StructureSelector::BugBase1, Some(Box::new(BugBase1Passive{})));
-    hm.insert(StructureSelector::BugBase2, Some(Box::new(BugBase2Passive{})));
-    hm.insert(StructureSelector::BugBase3, Some(Box::new(BugBase3Passive{})));
-    hm.insert(StructureSelector::TechBase, Some(Box::new(TechBasePassive{})));
-    hm.insert(StructureSelector::TechRoad, None);
-    hm.insert(StructureSelector::TechMine1, Some(Box::new(TechMine1Passive{})));
-    hm.insert(StructureSelector::TechMine2, Some(Box::new(TechMine2Passive{})));
-    hm.insert(StructureSelector::TechRefinery1, None);
-    hm.insert(StructureSelector::TechRefinery2, None);
-    hm.insert(StructureSelector::TechMarket, None);
-    hm.insert(StructureSelector::TechTurret1, None);
-    hm.insert(StructureSelector::TechTurret2, None);
-    hm.insert(StructureSelector::TechArtillery1, None);
-    hm.insert(StructureSelector::TechArtillery2, None);
-    hm.insert(StructureSelector::TechWall1, None);
-    hm.insert(StructureSelector::TechNuke, None);
+pub fn get_passive_abilities() -> HashMap<TileSelector, Option<Box<dyn PassiveAbility>>> {
+    let mut hm: HashMap<TileSelector, Option<Box<dyn PassiveAbility>>> = HashMap::new();
+    hm.insert(TileSelector::BugBase1, Some(Box::new(BugBase1Passive{})));
+    hm.insert(TileSelector::BugBase2, Some(Box::new(BugBase2Passive{})));
+    hm.insert(TileSelector::BugBase3, Some(Box::new(BugBase3Passive{})));
+    hm.insert(TileSelector::TechBase, Some(Box::new(TechBasePassive{})));
+    hm.insert(TileSelector::TechRoad, None);
+    hm.insert(TileSelector::TechMine1, Some(Box::new(TechMine1Passive{})));
+    hm.insert(TileSelector::TechMine2, Some(Box::new(TechMine2Passive{})));
+    hm.insert(TileSelector::TechRefinery1, None);
+    hm.insert(TileSelector::TechRefinery2, None);
+    hm.insert(TileSelector::TechMarket, None);
+    hm.insert(TileSelector::TechTurret1, None);
+    hm.insert(TileSelector::TechTurret2, None);
+    hm.insert(TileSelector::TechArtillery1, None);
+    hm.insert(TileSelector::TechArtillery2, None);
+    hm.insert(TileSelector::TechWall1, None);
+    hm.insert(TileSelector::TechNuke, None);
     hm
 }
 
 impl PassiveAbility for TechBasePassive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Tile) -> bool {
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
@@ -41,7 +42,7 @@ impl PassiveAbility for TechBasePassive {
 }
 
 impl PassiveAbility for TechMine1Passive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Tile) -> bool {
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
         true
@@ -49,7 +50,7 @@ impl PassiveAbility for TechMine1Passive {
 }
 
 impl PassiveAbility for TechMine2Passive {
-    fn activate_passive(&self, game_state: &mut GameState, _: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, _: &mut Tile) -> bool {
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
         game_state.tech_resources.push(Resource::Gold);
@@ -58,7 +59,7 @@ impl PassiveAbility for TechMine2Passive {
 }
 
 impl PassiveAbility for BugBase1Passive {
-    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Tile) -> bool {
         let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
         let mut on_bottom_edge = false;
         for (loc, _) in footprint {
@@ -76,7 +77,7 @@ impl PassiveAbility for BugBase1Passive {
 }
 
 impl PassiveAbility for BugBase2Passive {
-    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Tile) -> bool {
         let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
         let mut on_bottom_edge = false;
         for (loc, _) in footprint {
@@ -96,7 +97,7 @@ impl PassiveAbility for BugBase2Passive {
 }
 
 impl PassiveAbility for BugBase3Passive {
-    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Tile) -> bool {
         let footprint = game_state.map.get_footprint_tiles_by_id(&structure.id);
         let mut on_bottom_edge = false;
         for (loc, _) in footprint {

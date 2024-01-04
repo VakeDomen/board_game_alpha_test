@@ -3,7 +3,7 @@ use crate::{
     server::messages::{wss_message::WSSMessage, control_commands::ControlCommand, game_commands::GameCommand}
 };
 
-use super::{control_message::{create_game, join_game, start_game, list_lobby, list_running}, game_message::{get_state, setup_base, next_phase, undo_move, place_structure, place_unit, get_recepies, activate_ability, apply_phase}};
+use super::{control_message::{create_game, join_game, start_game, list_lobby, list_running}, game_message::{get_state, setup_base, next_phase, undo_move, get_recepies, activate_ability, apply_phase, place_tile}};
 
 
 pub fn handle(msg: WSSMessage, socket_id: String) -> WSSMessage {
@@ -30,8 +30,7 @@ fn handle_game_message(game_name: String, msg: GameCommand) -> WSSMessage {
     match msg {
         GameCommand::GetState => get_state(game_name),
         GameCommand::BaseSetup(x, y) => setup_base(game_name, x, y),
-        GameCommand::PlaceStructure(selector, x, y) => place_structure(game_name, selector, x, y),
-        GameCommand::PlaceUnit(selector, x, y, rotate) => place_unit(game_name, selector, x, y, rotate),
+        GameCommand::PlaceTile(selector, x, y, rotate) => place_tile(game_name, selector, x, y, rotate),
         GameCommand::NextPhase => next_phase(game_name),
         GameCommand::ApplyPhase => apply_phase(game_name),
         GameCommand::GetRecepies => get_recepies(game_name),

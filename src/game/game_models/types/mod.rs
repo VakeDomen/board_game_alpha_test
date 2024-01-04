@@ -1,5 +1,4 @@
 pub mod resource;
-pub mod structure;
-pub mod unit;
+pub mod tile;
 pub mod tile_traits;
 pub mod map;

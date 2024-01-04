@@ -2,95 +2,96 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use crate::game::game_models::types::structure::StructureSelector;
+use crate::game::game_models::types::tile::TileSelector;
+
 
 
 #[derive(Debug, Serialize, Clone, PartialEq)]
-pub struct StructureStats {
+pub struct TileStats {
     pub hp: i32,
     pub attack: i32,
     pub range: i32,
 }
 
-pub fn get_stats() -> HashMap<StructureSelector, StructureStats> {
+pub fn get_stats() -> HashMap<TileSelector, TileStats> {
     let mut hm = HashMap::new();
-    hm.insert(StructureSelector::BugBase1, StructureStats {
+    hm.insert(TileSelector::BugBase1, TileStats {
         hp: 1,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::BugBase2, StructureStats {
+    hm.insert(TileSelector::BugBase2, TileStats {
         hp: 2,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::BugBase3, StructureStats {
+    hm.insert(TileSelector::BugBase3, TileStats {
         hp: 3,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::TechBase, StructureStats {
+    hm.insert(TileSelector::TechBase, TileStats {
         hp: 10,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::TechMine1, StructureStats {
+    hm.insert(TileSelector::TechMine1, TileStats {
         hp: 2,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::TechMine2, StructureStats {
+    hm.insert(TileSelector::TechMine2, TileStats {
         hp: 2,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::TechRefinery1, StructureStats {
+    hm.insert(TileSelector::TechRefinery1, TileStats {
         hp: 2,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::TechRefinery2, StructureStats {
+    hm.insert(TileSelector::TechRefinery2, TileStats {
         hp: 2,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::TechMarket, StructureStats {
+    hm.insert(TileSelector::TechMarket, TileStats {
         hp: 2,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::TechTurret1, StructureStats {
+    hm.insert(TileSelector::TechTurret1, TileStats {
         hp: 3,
         attack: 3,
         range: 2,
     });
-    hm.insert(StructureSelector::TechTurret2, StructureStats {
+    hm.insert(TileSelector::TechTurret2, TileStats {
         hp: 3,
         attack: 5,
         range: 3,
     });
-    hm.insert(StructureSelector::TechArtillery1, StructureStats {
+    hm.insert(TileSelector::TechArtillery1, TileStats {
         hp: 3,
         attack: 1,
         range: 7,
     });
-    hm.insert(StructureSelector::TechArtillery2, StructureStats {
+    hm.insert(TileSelector::TechArtillery2, TileStats {
         hp: 3,
         attack: 2,
         range: 8,
     });
-    hm.insert(StructureSelector::TechWall1, StructureStats {
+    hm.insert(TileSelector::TechWall1, TileStats {
         hp: 2,
         attack: 0,
         range: 0,
     });
-    hm.insert(StructureSelector::TechRoad, StructureStats {
+    hm.insert(TileSelector::TechRoad, TileStats {
         hp: 1,
         attack: 0,
         range: 0,
     });
 
-    hm.insert(StructureSelector::TechNuke, StructureStats {
+    hm.insert(TileSelector::TechNuke, TileStats {
         hp: 1,
         attack: 0,
         range: 0,

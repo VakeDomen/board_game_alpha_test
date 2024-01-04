@@ -1,18 +1,18 @@
 use std::collections::HashMap;
 
-use crate::game::game_models::types::{resource::Resource, structure::StructureSelector};
+use crate::game::game_models::types::{tile::TileSelector, resource::Resource};
 
 
-pub fn get_costs() -> HashMap<StructureSelector, Vec<Resource>> {
+pub fn get_costs() -> HashMap<TileSelector, Vec<Resource>> {
     let mut hm = HashMap::new();
-    hm.insert(StructureSelector::BugBase1, vec![]);
-    hm.insert(StructureSelector::BugBase2, vec![]);
-    hm.insert(StructureSelector::BugBase3, vec![]);
-    hm.insert(StructureSelector::TechBase, vec![]);
-    hm.insert(StructureSelector::TechRoad, vec![
+    hm.insert(TileSelector::BugBase1, vec![]);
+    hm.insert(TileSelector::BugBase2, vec![]);
+    hm.insert(TileSelector::BugBase3, vec![]);
+    hm.insert(TileSelector::TechBase, vec![]);
+    hm.insert(TileSelector::TechRoad, vec![
         Resource::Gold, 
     ]);
-    hm.insert(StructureSelector::TechMine1, vec![
+    hm.insert(TileSelector::TechMine1, vec![
         Resource::Gold, 
         Resource::Gold, 
         Resource::Gold, 
@@ -20,7 +20,7 @@ pub fn get_costs() -> HashMap<StructureSelector, Vec<Resource>> {
         Resource::Gold,
 
     ]);
-    hm.insert(StructureSelector::TechMine2, vec![
+    hm.insert(TileSelector::TechMine2, vec![
         Resource::Gold, 
         Resource::Gold, 
         Resource::Gold, 
@@ -28,53 +28,53 @@ pub fn get_costs() -> HashMap<StructureSelector, Vec<Resource>> {
         Resource::Gold,
         Resource::Metal,
     ]);
-    hm.insert(StructureSelector::TechRefinery1, vec![
+    hm.insert(TileSelector::TechRefinery1, vec![
         Resource::Gold, 
         Resource::Gold, 
         Resource::Gold,
     ]);
-    hm.insert(StructureSelector::TechRefinery2, vec![
-        Resource::Gold, 
-        Resource::Gold, 
-        Resource::Gold,
-        Resource::Metal,
-    ]);
-    hm.insert(StructureSelector::TechMarket, vec![
+    hm.insert(TileSelector::TechRefinery2, vec![
         Resource::Gold, 
         Resource::Gold, 
         Resource::Gold,
         Resource::Metal,
     ]);
-    hm.insert(StructureSelector::TechTurret1, vec![
+    hm.insert(TileSelector::TechMarket, vec![
         Resource::Gold, 
         Resource::Gold, 
         Resource::Gold,
         Resource::Metal,
     ]);
-    hm.insert(StructureSelector::TechTurret2, vec![
-        Resource::Gold, 
-        Resource::Gold, 
-        Resource::Gold,
-        Resource::Metal,
-        Resource::Metal,
-    ]);
-    hm.insert(StructureSelector::TechArtillery1, vec![
+    hm.insert(TileSelector::TechTurret1, vec![
         Resource::Gold, 
         Resource::Gold, 
         Resource::Gold,
         Resource::Metal,
     ]);
-    hm.insert(StructureSelector::TechArtillery2, vec![
+    hm.insert(TileSelector::TechTurret2, vec![
         Resource::Gold, 
         Resource::Gold, 
         Resource::Gold,
         Resource::Metal,
         Resource::Metal,
     ]);
-    hm.insert(StructureSelector::TechWall1, vec![
+    hm.insert(TileSelector::TechArtillery1, vec![
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
+    ]);
+    hm.insert(TileSelector::TechArtillery2, vec![
+        Resource::Gold, 
+        Resource::Gold, 
+        Resource::Gold,
+        Resource::Metal,
+        Resource::Metal,
+    ]);
+    hm.insert(TileSelector::TechWall1, vec![
         Resource::Gold, 
     ]);
-    hm.insert(StructureSelector::TechNuke, vec![
+    hm.insert(TileSelector::TechNuke, vec![
         Resource::Gold, 
         Resource::Gold, 
         Resource::Gold, 
@@ -91,5 +91,19 @@ pub fn get_costs() -> HashMap<StructureSelector, Vec<Resource>> {
         Resource::Metal, 
         Resource::Metal, 
     ]);
+    hm.insert(TileSelector::BugSoldierLV1, vec![
+        Resource::Egg, 
+    ]);
+    hm.insert(TileSelector::BugSoldierLV2, vec![
+        Resource::Egg, 
+        Resource::Egg, 
+    ]);
+    hm.insert(TileSelector::BugSoldierLV3, vec![
+        Resource::Egg, 
+        Resource::Egg, 
+        Resource::Egg, 
+    ]);
+    hm.insert(TileSelector::BugEliteMelee, vec![]);
+    hm.insert(TileSelector::BugEliteRanged, vec![]);
     hm
 }

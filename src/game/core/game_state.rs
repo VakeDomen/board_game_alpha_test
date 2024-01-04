@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::game::game_models::types::{resource::Resource, map::Map, tile_traits::Tile};
+
+use crate::game::game_models::types::{tile::Tile, resource::Resource, map::Map};
 
 use super::{game::{Player, TurnPhase}, types::moves::Move};
 

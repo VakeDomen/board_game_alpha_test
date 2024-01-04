@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use crate::game::game_models::types::{structure::StructureSelector, unit::UnitSelector};
+use crate::game::game_models::types::tile::TileSelector;
+
 
 
 
@@ -10,8 +11,7 @@ use crate::game::game_models::types::{structure::StructureSelector, unit::UnitSe
 pub enum GameCommand {
     GetState,
     BaseSetup(i32, i32),
-    PlaceStructure(StructureSelector, i32, i32),
-    PlaceUnit(UnitSelector, i32, i32, i32),
+    PlaceTile(TileSelector, i32, i32, i32),
     ActivateAbility(String, i32, HashMap<String, String>),
     NextPhase,
     ApplyPhase,
@@ -44,26 +44,7 @@ impl From<String> for GameCommand {
                     Self::BaseSetup(x, y)
                 }
             },
-            "PlaceStructure" => {
-                if tokens.len() != 4 {
-                    Self::InvalidCommand("4 tokens needed".to_string())
-                } else {
-                    let structure_selector = match parse_structure_selector(tokens[1]) {
-                        Some(s) => s,
-                        None => return Self::InvalidCommand("Can't parse structure selector".to_string()),
-                    };
-                    let x: i32 = match tokens[2].parse() {
-                        Ok(n) => n,
-                        Err(_) => return Self::InvalidCommand("Can't parse X".to_string()),
-                    };
-                    let y: i32 = match tokens[3].parse() {
-                        Ok(n) => n,
-                        Err(_) => return Self::InvalidCommand("Can't parse Y".to_string()),
-                    };
-                    Self::PlaceStructure(structure_selector, x, y)
-                }
-            },
-            "PlaceUnit" => {
+            "PlaceTile" => {
                 if tokens.len() != 5 {
                     Self::InvalidCommand("5 tokens needed ".to_string())
                 } else {
@@ -83,7 +64,7 @@ impl From<String> for GameCommand {
                         Ok(n) => n,
                         Err(_) => return Self::InvalidCommand("Can't parse rotation".to_string()),
                     };
-                    Self::PlaceUnit(unit_selector, x, y, rotat)
+                    Self::PlaceTile(unit_selector, x, y, rotat)
                 }
             },
             "ActivateAbility" => {
@@ -116,34 +97,34 @@ impl From<String> for GameCommand {
     }
 }
 
-fn parse_structure_selector(token: &str) -> Option<StructureSelector> {
+fn parse_structure_selector(token: &str) -> Option<TileSelector> {
     match token {
-        "BugBase1" => Some(StructureSelector::BugBase1),
-        "BugBase2" => Some(StructureSelector::BugBase2),
-        "BugBase3" => Some(StructureSelector::BugBase3),
-        "TechBase" => Some(StructureSelector::TechBase),
-        "TechRoad" => Some(StructureSelector::TechRoad),
-        "TechMine1" => Some(StructureSelector::TechMine1),
-        "TechMine2" => Some(StructureSelector::TechMine2),
-        "TechRefinery1" => Some(StructureSelector::TechRefinery1),
-        "TechRefinery2" => Some(StructureSelector::TechRefinery2),
-        "TechMarket" => Some(StructureSelector::TechMarket),
-        "TechTurret1" => Some(StructureSelector::TechTurret1),
-        "TechTurret2" => Some(StructureSelector::TechTurret2),
-        "TechArtillery1" => Some(StructureSelector::TechArtillery1),
-        "TechArtillery2" => Some(StructureSelector::TechArtillery2),
-        "TechWall1" => Some(StructureSelector::TechWall1),
-        "TechNuke" => Some(StructureSelector::TechNuke),
+        "BugBase1" => Some(TileSelector::BugBase1),
+        "BugBase2" => Some(TileSelector::BugBase2),
+        "BugBase3" => Some(TileSelector::BugBase3),
+        "TechBase" => Some(TileSelector::TechBase),
+        "TechRoad" => Some(TileSelector::TechRoad),
+        "TechMine1" => Some(TileSelector::TechMine1),
+        "TechMine2" => Some(TileSelector::TechMine2),
+        "TechRefinery1" => Some(TileSelector::TechRefinery1),
+        "TechRefinery2" => Some(TileSelector::TechRefinery2),
+        "TechMarket" => Some(TileSelector::TechMarket),
+        "TechTurret1" => Some(TileSelector::TechTurret1),
+        "TechTurret2" => Some(TileSelector::TechTurret2),
+        "TechArtillery1" => Some(TileSelector::TechArtillery1),
+        "TechArtillery2" => Some(TileSelector::TechArtillery2),
+        "TechWall1" => Some(TileSelector::TechWall1),
+        "TechNuke" => Some(TileSelector::TechNuke),
         _ => None,
     }
 }
-fn parse_unit_selector(token: &str) -> Option<UnitSelector> {
+fn parse_unit_selector(token: &str) -> Option<TileSelector> {
     match token {
-        "BugSoldierLV1" => Some(UnitSelector::BugSoldierLV1),
-        "BugSoldierLV2" => Some(UnitSelector::BugSoldierLV2),
-        "BugSoldierLV3" => Some(UnitSelector::BugSoldierLV3),
-        "BugEliteMelee" => Some(UnitSelector::BugEliteMelee),
-        "BugEliteRanged" => Some(UnitSelector::BugEliteRanged),
+        "BugSoldierLV1" => Some(TileSelector::BugSoldierLV1),
+        "BugSoldierLV2" => Some(TileSelector::BugSoldierLV2),
+        "BugSoldierLV3" => Some(TileSelector::BugSoldierLV3),
+        "BugEliteMelee" => Some(TileSelector::BugEliteMelee),
+        "BugEliteRanged" => Some(TileSelector::BugEliteRanged),
         
         _ => None,
     }

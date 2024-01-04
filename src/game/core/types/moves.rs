@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::game::game_models::types::{structure::StructureSelector, unit::UnitSelector};
+use crate::game::game_models::types::tile::TileSelector;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Move {
@@ -19,7 +19,7 @@ pub enum TechMove {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TechMainPhaseMove {
-    Build(StructureSelector, i32, i32),
+    Build(TileSelector, i32, i32),
     ActivateAbility(String, i32, HashMap<String, String>), // id, index of ability(usually 0), additional data
 }
 
@@ -33,7 +33,7 @@ pub enum BugMove {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum BugMainPhaseMove {
-    PlaceUnit(UnitSelector, i32, i32, i32), // selector, x, y, orientation (0-3)
+    PlaceTile(TileSelector, i32, i32, i32), // selector, x, y, orientation (0-3)
     ActivateAbility(String, i32, HashMap<String, String>), // id and index of ability. usually 0
-    SacrificeUnit(String),
+    SacrificeTile(String),
 }

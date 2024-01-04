@@ -6,24 +6,17 @@ use uuid::Uuid;
 
 use crate::game::game_models::{
     types::{
-        tile_traits::{Tile, NewTile}, 
-        structure::{NewStructure, StructureSelector}, 
-        map::{MapError, Interactor, TileOption}, 
-        unit::{UnitSelector, NewUnit}
+        map::{MapError, Interactor, TileOption}, tile::{TileSelector, NewTile}, 
     }, 
     functions::{
         upgrades::get_upgraders, 
         ability_passive::get_passive_abilities, 
-        ability_active::{get_active_abilities, remove_resources}
+        ability_active::get_active_abilities
     }, 
     data::{
-        structures::{
-            costs::get_costs, 
-            activation_costs::get_activation_costs, 
-            placers::get_placers
-        },
-        units::placers::get_placers as unit_placers,
-}
+        activation_costs::get_activation_costs, 
+        placers::get_placers
+    },
 };
 use super::{
     lobby::new_game::NewGame, 
@@ -170,16 +163,17 @@ fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
         if state.player_turn == Player::First {
             if let Move::Tech(tech_move) = potential_move {
                 if let TechMove::SetupMove(x, y) = tech_move {
-                    if let Some(placer) = placers.get(&StructureSelector::TechBase) {
+                    if let Some(placer) = placers.get(&TileSelector::TechBase) {
                         if let Some(placer) = placer {
                             let id = Uuid::new_v4().to_string();
-                            let structure = NewStructure {
-                                structure_type: StructureSelector::TechBase,
+                            let tile = NewTile {
+                                tile_type: TileSelector::TechBase,
                                 id: id.clone(),
                                 x: None,
                                 y: None,
+                                rotated: false,
                             };
-                            match placer.place(NewTile::Structure(structure), state, *x, *y) {
+                            match placer.place(tile, state, *x, *y) {
                                 Ok(s) => state.tiles.insert(id, s),
                                 Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
                             };
@@ -194,16 +188,17 @@ fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
         if state.player_turn == Player::Second {
             if let Move::Bug(bug_move) = potential_move {
                 if let BugMove::SetupMove(x, y) = bug_move {
-                    if let Some(placer) = placers.get(&StructureSelector::BugBase1) {
+                    if let Some(placer) = placers.get(&TileSelector::BugBase1) {
                         if let Some(placer) = placer {
                             let id = Uuid::new_v4().to_string();
-                            let structure = NewStructure {
-                                structure_type: StructureSelector::BugBase1,
+                            let tile = NewTile {
+                                tile_type: TileSelector::BugBase1,
                                 id: id.clone(),
                                 x: None,
                                 y: None,
+                                rotated: false,
                             };
-                            match placer.place(NewTile::Structure(structure), state, *x, *y) {
+                            match placer.place(tile, state, *x, *y) {
                                 Ok(s) => state.tiles.insert(id, s),
                                 Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
                             };
@@ -230,18 +225,7 @@ fn apply_dmg(state: &mut GameState) -> Result<(), ProgressionError> {
         if state.player_turn == Player::First {
             if let Move::Tech(tech_move) = potential_move {
                 if let TechMove::DmgMove(initiator_id, target_id, dmg) = tech_move {
-                    let initiator = match state.tiles.get_mut(initiator_id) {
-                        Some(i) => match i {
-                            Tile::Structure(s) => s,
-                            Tile::Unit(_) => todo!(),
-                        },
-                        None => return Err(ProgressionError::NoDmgInitiatorFound),
-                    };
-                    // let target = match state.tiles.get_mut(initiator_id) {
-                    //     Some(i) => i,
-                    //     None => return Err(ProgressionError::NoDmgTargetFound),
-                    // };
-                    let true_initiator = initiator;
+                    todo!()
                 }
             }
             continue;
@@ -266,9 +250,9 @@ fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
     let actives = get_active_abilities();
 
     let bug_selectors = [
-        StructureSelector::BugBase1,
-        StructureSelector::BugBase2,
-        StructureSelector::BugBase3,
+        TileSelector::BugBase1,
+        TileSelector::BugBase2,
+        TileSelector::BugBase3,
     ];
 
 
@@ -276,15 +260,13 @@ fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
     // trigger passives
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
     for (_, tile) in &mut tiles {
-        if let Tile::Structure(structure) = tile {
-            if 
-                (state.player_turn == Player::First && !bug_selectors.contains(&structure.structure_type)) ||
-                (state.player_turn == Player::Second && bug_selectors.contains(&structure.structure_type))
-            {
-                if let Some(passive) = passives.get(&structure.structure_type) {
-                    if let Some(passive) = passive {
-                        passive.activate_passive(state, structure);
-                    }
+        if 
+            (state.player_turn == Player::First && !bug_selectors.contains(&tile.tile_type)) ||
+            (state.player_turn == Player::Second && bug_selectors.contains(&tile.tile_type))
+        {
+            if let Some(passive) = passives.get(&tile.tile_type) {
+                if let Some(passive) = passive {
+                    passive.activate_passive(state, tile);
                 }
             }
         }
@@ -294,15 +276,13 @@ fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
     // trigger actives
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
     for (_, tile) in &mut tiles {
-        if let Tile::Structure(structure) = tile {
-            if 
-                (state.player_turn == Player::First && !bug_selectors.contains(&structure.structure_type)) ||
-                (state.player_turn == Player::Second && bug_selectors.contains(&structure.structure_type))
-            {
-                if let Some(active) = actives.get(&structure.structure_type) {
-                    if let Some(active) = active {
-                        active.trigger(state, structure);
-                    }
+        if 
+            (state.player_turn == Player::First && !bug_selectors.contains(&tile.tile_type)) ||
+            (state.player_turn == Player::Second && bug_selectors.contains(&tile.tile_type))
+        {
+            if let Some(active) = actives.get(&tile.tile_type) {
+                if let Some(active) = active {
+                    active.trigger(state, tile);
                 }
             }
         }
@@ -312,15 +292,13 @@ fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
     // trigger upgrade structs
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
     for (_, tile) in &mut tiles {
-        if let Tile::Structure(structure) = tile {
-            if 
-                (state.player_turn == Player::First && !bug_selectors.contains(&structure.structure_type)) ||
-                (state.player_turn == Player::Second && bug_selectors.contains(&structure.structure_type))
-            {
-                if let Some(upgrader) = upgraders.get(&structure.structure_type) {
-                    if let Some(upgrader) = upgrader {
-                        upgrader.upgrade(state, structure); // Now it's okay to borrow state mutably.
-                    }
+        if 
+            (state.player_turn == Player::First && !bug_selectors.contains(&tile.tile_type)) ||
+            (state.player_turn == Player::Second && bug_selectors.contains(&tile.tile_type))
+        {
+            if let Some(upgrader) = upgraders.get(&tile.tile_type) {
+                if let Some(upgrader) = upgrader {
+                    upgrader.upgrade(state, tile); // Now it's okay to borrow state mutably.
                 }
             }
         }
@@ -329,7 +307,6 @@ fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
 
 
     // check if T1 nests need to be placed
-    let placers = get_placers();
     for row in 0..state.map.len() {
         for col in 0..state.map[row].len() {
             if !state.map[row][col].is_empty() {
@@ -337,53 +314,38 @@ fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
             }
 
             let adj = state.map.get_tile_adjacent(row as i32, col as i32);
-            let mut all_t1_units = true;
+            let mut all_t1_tiles = true;
             for (_, tile_option) in adj.iter() {
                 let tile = match tile_option {
                     TileOption::Id(id) => state.tiles.get(id).unwrap(),
                     TileOption::None => {
-                        all_t1_units = false;
+                        all_t1_tiles = false;
                         break; 
                     },
                     TileOption::OutOfBounds =>{
-                        all_t1_units = false;
+                        all_t1_tiles = false;
                         break; 
                     },
                 };
-                let unit = match tile {
-                    Tile::Structure(_) => {
-                        all_t1_units = false;
-                        break; 
-                    },
-                    Tile::Unit(u) => u,
-                };
-                if UnitSelector::BugSoldierLV1 != unit.unit_type {
-                    all_t1_units = false;
+                if TileSelector::BugSoldierLV1 != tile.tile_type {
+                    all_t1_tiles = false;
                     break; 
                 }
             }
-            if !all_t1_units {
+            if !all_t1_tiles {
                 continue;
             }
             for (loc, _) in adj.iter() {
                 state.map[loc.0][loc.1] = "".to_owned();
             }
-            if let Some(placer) = placers.get(&StructureSelector::BugBase1) {
-                if let Some(placer) = placer {
-                    let id = Uuid::new_v4().to_string();
-                    let structure = NewStructure {
-                        structure_type: StructureSelector::BugBase1,
-                        id: id.clone(),
-                        x: None,
-                        y: None,
-                    };
-                    match placer.place(NewTile::Structure(structure), state, row as i32, col as i32) {
-                        Ok(s) => state.tiles.insert(id, s),
-                        Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
-                    };
-                }
-            }
-            
+
+            place_tile(
+                &mut TileSelector::BugBase1, 
+                &mut 0, 
+                state, 
+                &mut (row as i32), 
+                &mut (col as i32)
+            )?;            
         }
     }
     Ok(())
@@ -396,9 +358,9 @@ fn apply_main(state: &mut GameState) -> Result<(), ProgressionError> {
             if let Move::Tech(tech_move) = potential_move {
                 if let TechMove::MainMove(main_move) = tech_move {
                     
-                    // build structures
+                    // build tiles
                     if let TechMainPhaseMove::Build(selector, x, y) = main_move {
-                        if let Err(value) = build_structure(selector, state, x, y) {
+                        if let Err(value) = place_tile(selector, &mut 0, state, x, y) {
                             return Err(value);
                         }
                     }
@@ -424,8 +386,8 @@ fn apply_main(state: &mut GameState) -> Result<(), ProgressionError> {
                         }
                     }
 
-                    if let BugMainPhaseMove::PlaceUnit(unit_selector, x, y, rotation) = main_move {
-                        if let Err(value) = place_unit(unit_selector, rotation, state, x, y) {
+                    if let BugMainPhaseMove::PlaceTile(tile_selector, x, y, rotation) = main_move {
+                        if let Err(value) = place_tile(tile_selector, rotation, state, x, y) {
                             return Err(value);
                         }
                     }
@@ -443,63 +405,30 @@ fn apply_end(_: &mut GameState) -> Result<(), ProgressionError> {
 
 
 
-fn place_unit(
-    unit_selector: &mut UnitSelector, 
+fn place_tile(
+    tile_selector: &mut TileSelector, 
     rotation: &mut i32, 
     state: &mut GameState, 
     x: &mut i32, 
     y: &mut i32
 ) -> Result<(), ProgressionError> {
-    let placers = unit_placers();
-    if let Some(placer) = placers.get(&unit_selector) {
+    let placers = get_placers();
+    if let Some(placer) = placers.get(&tile_selector) {
         if let Some(placer) = placer {
-            // create structure
+            // create tile
             let id = Uuid::new_v4().to_string();
-            let unit = NewUnit {
-                unit_type: unit_selector.clone(),
+            let tile = NewTile {
+                tile_type: tile_selector.clone(),
                 id: id.clone(),
                 x: None,
                 y: None,
                 rotated: (*rotation == 1),
             };
             // place it
-            match placer.place(NewTile::Unit(unit), state, *x, *y) {
+            match placer.place(tile, state, *x, *y) {
                 Ok(s) => state.tiles.insert(id, s),
-                Err(e) => return Err(ProgressionError::CantPlaceUnit(e)),
+                Err(e) => return Err(ProgressionError::CantPlaceTile(e)),
             };
-        }
-    }
-    Ok(())
-}
-
-fn build_structure(
-    selector: &mut StructureSelector, 
-    state: &mut GameState, 
-    x: &mut i32, 
-    y: &mut i32, 
-) -> Result<(), ProgressionError> {
-    let placers = get_placers();
-    let costs = get_costs();
-    if let Some(placer) = placers.get(&selector) {
-        if let Some(placer) = placer {
-            // create structure
-            let id = Uuid::new_v4().to_string();
-            let structure = NewStructure {
-                structure_type: selector.clone(),
-                id: id.clone(),
-                x: None,
-                y: None,
-            };
-            // place it
-            match placer.place(NewTile::Structure(structure), state, *x, *y) {
-                Ok(s) => state.tiles.insert(id, s),
-                Err(e) => return Err(ProgressionError::CantPlaceBase(e)),
-            };
-            // subtract resources
-            remove_resources(
-                &mut state.tech_resources,
-                &costs.get(&selector).unwrap()
-            );
         }
     }
     Ok(())
@@ -513,25 +442,22 @@ fn activate_ability(
 ) -> Result<(), ProgressionError> {
     let ability_costs = get_activation_costs();
     let actives = get_active_abilities();
-    let tile = match state.tiles.get(id) {
+    let mut tile = match state.tiles.get(id) {
         Some(s) => s.clone(),
-        None => return Err(ProgressionError::CantFindStructure(id.to_string())),
+        None => return Err(ProgressionError::CantFindTile(id.to_string())),
     };
-    let mut structure = match tile {
-        Tile::Structure(s) => s,
-        Tile::Unit(_) => return Err(ProgressionError::CantActivateAbility(id.to_string())),
-    };
-    structure.additional_data = additional_data.clone();
-    let cost = ability_costs.get(&structure.structure_type).unwrap();
+    
+    tile.additional_data = additional_data.clone();
+    let cost = ability_costs.get(&tile.tile_type).unwrap();
     if cost.is_empty() || cost.len() <= *ability_index as usize {
-        return Err(ProgressionError::CantActivateAbility(format!("no ability for {:#?}", structure.structure_type)));
+        return Err(ProgressionError::CantActivateAbility(format!("no ability for {:#?}", tile.tile_type)));
     }
-    if let Some(active) = actives.get(&structure.structure_type) {
+    if let Some(active) = actives.get(&tile.tile_type) {
         if let Some(active) = active {
-            active.activate(state, &mut structure, cost[*ability_index as usize].clone());
+            active.activate(state, &mut tile, cost[*ability_index as usize].clone());
         }
     }
-    state.tiles.insert(id.to_string(), Tile::Structure(structure));
+    state.tiles.insert(id.to_string(), tile);
     Ok(())
 }
 
@@ -543,9 +469,9 @@ fn activate_ability(
 pub enum ProgressionError {
     NoBasePlacement,
     CantPlaceBase(MapError),
-    CantFindStructure(String),
+    CantFindTile(String),
     CantActivateAbility(String),
-    CantPlaceUnit(MapError),
+    CantPlaceTile(MapError),
     NoDmgInitiatorFound,
     NoDmgTargetFound,
 }

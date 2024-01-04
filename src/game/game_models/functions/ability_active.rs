@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::{types::{structure::{StructureSelector, Structure}, tile_traits::ActiveAbility, resource::Resource, map::{Interactor, TileOption}}, data::structures::recepies::get_recepie}, core::game_state::GameState};
+use crate::game::{game_models::{types::{tile::{TileSelector, Tile}, tile_traits::ActiveAbility, resource::Resource, map::{Interactor, TileOption}}, data::recepies::get_recepie}, core::game_state::GameState};
 
 pub struct TechRefinery1Active;
 pub struct TechRefinery2Active;
@@ -9,30 +9,30 @@ pub struct TechNukeActive;
 pub struct BugBase3Active;
 
 
-pub fn get_active_abilities() -> HashMap<StructureSelector, Option<Box<dyn ActiveAbility>>> {
-    let mut hm: HashMap<StructureSelector, Option<Box<dyn ActiveAbility>>> = HashMap::new();
-    hm.insert(StructureSelector::BugBase1, None);
-    hm.insert(StructureSelector::BugBase2, None);
-    hm.insert(StructureSelector::BugBase3, None);
-    hm.insert(StructureSelector::TechBase, None);
-    hm.insert(StructureSelector::TechRoad, None);
-    hm.insert(StructureSelector::TechMine1, None);
-    hm.insert(StructureSelector::TechMine2, None);
-    hm.insert(StructureSelector::TechRefinery1, Some(Box::new(TechRefinery1Active{})));
-    hm.insert(StructureSelector::TechRefinery2, Some(Box::new(TechRefinery2Active{})));
-    hm.insert(StructureSelector::TechMarket, Some(Box::new(TechMarketActive{})));
-    hm.insert(StructureSelector::TechTurret1, None);
-    hm.insert(StructureSelector::TechTurret2, None);
-    hm.insert(StructureSelector::TechArtillery1, None);
-    hm.insert(StructureSelector::TechArtillery2, None);
-    hm.insert(StructureSelector::TechWall1, None);
-    hm.insert(StructureSelector::TechNuke, Some(Box::new(TechNukeActive{})));
+pub fn get_active_abilities() -> HashMap<TileSelector, Option<Box<dyn ActiveAbility>>> {
+    let mut hm: HashMap<TileSelector, Option<Box<dyn ActiveAbility>>> = HashMap::new();
+    hm.insert(TileSelector::BugBase1, None);
+    hm.insert(TileSelector::BugBase2, None);
+    hm.insert(TileSelector::BugBase3, None);
+    hm.insert(TileSelector::TechBase, None);
+    hm.insert(TileSelector::TechRoad, None);
+    hm.insert(TileSelector::TechMine1, None);
+    hm.insert(TileSelector::TechMine2, None);
+    hm.insert(TileSelector::TechRefinery1, Some(Box::new(TechRefinery1Active{})));
+    hm.insert(TileSelector::TechRefinery2, Some(Box::new(TechRefinery2Active{})));
+    hm.insert(TileSelector::TechMarket, Some(Box::new(TechMarketActive{})));
+    hm.insert(TileSelector::TechTurret1, None);
+    hm.insert(TileSelector::TechTurret2, None);
+    hm.insert(TileSelector::TechArtillery1, None);
+    hm.insert(TileSelector::TechArtillery2, None);
+    hm.insert(TileSelector::TechWall1, None);
+    hm.insert(TileSelector::TechNuke, Some(Box::new(TechNukeActive{})));
     hm
 }
 
 impl ActiveAbility for BugBase3Active {
-    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
-        if !self.can_trigger(game_state, structure, &vec![
+    fn trigger(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if !self.can_trigger(game_state, tile, &vec![
             Resource::Corpse, Resource::Corpse, Resource::Corpse, Resource::Corpse, Resource::Corpse, 
             Resource::Corpse, Resource::Corpse, Resource::Corpse, Resource::Corpse, Resource::Corpse, 
         ]) {
@@ -41,11 +41,11 @@ impl ActiveAbility for BugBase3Active {
 
         game_state.bug_resources.push(Resource::GiantEgg);
 
-        structure.structure_type = StructureSelector::BugBase2;
-        game_state.map.remove_tile(structure.id.clone());
-        let recepie = get_recepie(&structure.structure_type);
-        for (location, _) in game_state.map.get_footprint_tiles(structure.x, structure.y, &recepie.footprint) {
-            game_state.map[location.0][location.1] = structure.id.to_string();
+        tile.tile_type = TileSelector::BugBase2;
+        game_state.map.remove_tile(tile.id.clone());
+        let recepie = get_recepie(&tile.tile_type);
+        for (location, _) in game_state.map.get_footprint_tiles(tile.x, tile.y, &recepie.footprint) {
+            game_state.map[location.0][location.1] = tile.id.to_string();
         }
 
         true
@@ -53,16 +53,16 @@ impl ActiveAbility for BugBase3Active {
 }
 
 impl ActiveAbility for TechNukeActive {
-    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
-        if !self.can_trigger(game_state, structure, &vec![Resource::Metal, Resource::Metal, Resource::Metal]) {
+    fn trigger(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if !self.can_trigger(game_state, tile, &vec![Resource::Metal, Resource::Metal, Resource::Metal]) {
             return false;
         }
 
-        structure.activated = false;
-        structure.activation_resources = vec![];
+        tile.activated = false;
+        tile.activation_resources = vec![];
 
-        let x = structure.additional_data.get("nuke_target_x");
-        let y = structure.additional_data.get("nuke_target_y");
+        let x = tile.additional_data.get("nuke_target_x");
+        let y = tile.additional_data.get("nuke_target_y");
 
         let x: i32 = match x {
             Some(x) => x.parse().unwrap(),
@@ -87,31 +87,31 @@ impl ActiveAbility for TechNukeActive {
 }
 
 impl ActiveAbility for TechMarketActive {
-    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
+    fn trigger(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
         let mut trigger_mode = 0;
-        if self.can_trigger(game_state, structure, &vec![Resource::Gold]) {
+        if self.can_trigger(game_state, tile, &vec![Resource::Gold]) {
             trigger_mode = 1;
         }
-        if self.can_trigger(game_state, structure, &vec![Resource::Metal]) {
+        if self.can_trigger(game_state, tile, &vec![Resource::Metal]) {
             trigger_mode = 2;
         }
         if trigger_mode == 0 {
             return false;
         }
 
-        structure.activated = false;
-        structure.activation_resources = vec![];
+        tile.activated = false;
+        tile.activation_resources = vec![];
             
         // deconstruct building
         if trigger_mode == 1 {
-            let deconstruct_structure_id = structure.additional_data.remove("deconstruct_id");
-            let deconstruct_structure_id = match deconstruct_structure_id {
+            let deconstruct_tile_id = tile.additional_data.remove("deconstruct_id");
+            let deconstruct_tile_id = match deconstruct_tile_id {
                 Some(id) => id,
                 None => return false,
             };
 
-            game_state.tiles.remove(&deconstruct_structure_id);
-            return game_state.map.remove_tile(deconstruct_structure_id);
+            game_state.tiles.remove(&deconstruct_tile_id);
+            return game_state.map.remove_tile(deconstruct_tile_id);
         }
 
         // sell metal
@@ -127,13 +127,13 @@ impl ActiveAbility for TechMarketActive {
 
 
 impl ActiveAbility for TechRefinery2Active {
-    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
-        if !self.can_trigger(game_state, structure, &vec![Resource::Gold]) {
+    fn trigger(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if !self.can_trigger(game_state, tile, &vec![Resource::Gold]) {
             return false;
         }
 
-        structure.activated = false;
-        structure.activation_resources = vec![];
+        tile.activated = false;
+        tile.activation_resources = vec![];
         game_state.tech_resources.push(Resource::Metal);
         game_state.tech_resources.push(Resource::Metal);
 
@@ -142,12 +142,12 @@ impl ActiveAbility for TechRefinery2Active {
 }
 
 impl ActiveAbility for TechRefinery1Active {
-    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool {
-        if !self.can_trigger(game_state, structure, &vec![Resource::Gold]) {
+    fn trigger(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
+        if !self.can_trigger(game_state, tile, &vec![Resource::Gold]) {
             return false;
         }
-        structure.activated = false;
-        structure.activation_resources = vec![];
+        tile.activated = false;
+        tile.activation_resources = vec![];
         game_state.tech_resources.push(Resource::Metal);
         true
     }

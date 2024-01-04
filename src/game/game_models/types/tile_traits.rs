@@ -1,20 +1,7 @@
-use serde::{Serialize, Deserialize};
-
 use crate::game::{game_models::functions::ability_active::{contains_required_resources, remove_resources}, core::game_state::GameState};
 
-use super::{structure::{Structure, NewStructure}, resource::Resource, unit::{NewUnit, Unit}, map::MapError};
+use super::{tile::{Tile, NewTile}, resource::Resource, map::MapError};
 
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Tile {
-    Structure(Structure),
-    Unit(Unit),
-}
-
-pub enum NewTile {
-    Structure(NewStructure),
-    Unit(NewUnit),
-}
 
 
 pub trait Placable {
@@ -23,13 +10,13 @@ pub trait Placable {
 }
 
 pub trait Upgradable {
-    fn upgrade(&self, game_state: &mut GameState, structure: &mut Structure) -> bool;
-    fn can_upgrade(&self, game_state: &GameState, structure: &mut Structure) -> bool;
+    fn upgrade(&self, game_state: &mut GameState, structure: &mut Tile) -> bool;
+    fn can_upgrade(&self, game_state: &GameState, structure: &mut Tile) -> bool;
 }
 
 pub trait ActiveAbility {
-    fn trigger(&self, game_state: &mut GameState, structure: &mut Structure) -> bool;
-    fn activate(&self, game_state: &mut GameState, structure: &mut Structure, payment: Vec<Resource>) -> bool {
+    fn trigger(&self, game_state: &mut GameState, structure: &mut Tile) -> bool;
+    fn activate(&self, game_state: &mut GameState, structure: &mut Tile, payment: Vec<Resource>) -> bool {
         if !self.can_activate(game_state, structure, &payment) {
             return false;
         }
@@ -45,7 +32,7 @@ pub trait ActiveAbility {
     }
 
 
-    fn can_activate(&self, game_state: &GameState, structure: &Structure, payment: &Vec<Resource>) -> bool {
+    fn can_activate(&self, game_state: &GameState, structure: &Tile, payment: &Vec<Resource>) -> bool {
         if structure.activated {
             return false
         }
@@ -56,7 +43,7 @@ pub trait ActiveAbility {
         true
     }
     
-    fn can_trigger(&self, _: &GameState, structure: &Structure, payment: &Vec<Resource>) -> bool{
+    fn can_trigger(&self, _: &GameState, structure: &Tile, payment: &Vec<Resource>) -> bool{
         if structure.activated {
             return false
         }
@@ -69,5 +56,5 @@ pub trait ActiveAbility {
 }
 
 pub trait PassiveAbility {
-    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Structure) -> bool;
+    fn activate_passive(&self, game_state: &mut GameState, structure: &mut Tile) -> bool;
 }

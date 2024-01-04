@@ -1,7 +1,6 @@
 use crate::{
     server::messages::wss_message::WSSMessage, 
-    storage::operations::game::{get_running_game_by_name, replace_game}, 
-    game::{core::{types::moves::{Move, TechMove, BugMove, TechMainPhaseMove, BugMainPhaseMove}, game::Player}, game_models::{data::structures::recepies::get_recepies as structure_recepies, types::{unit::UnitSelector, structure::StructureSelector}}}
+    storage::operations::game::{get_running_game_by_name, replace_game}, game::{core::{game::Player, types::moves::{Move, TechMove, BugMove, BugMainPhaseMove, TechMainPhaseMove}}, game_models::{types::tile::TileSelector, data::recepies::get_recepies as tile_recepies}}, 
 };
 
 
@@ -41,7 +40,7 @@ pub fn setup_base(game_name: String, x: i32, y: i32) -> WSSMessage {
     WSSMessage::State(game)
 }
 
-pub fn place_unit(game_name: String, selector: UnitSelector, x: i32, y: i32, rotate: i32) -> WSSMessage {
+pub fn place_tile(game_name: String, selector: TileSelector, x: i32, y: i32, rotate: i32) -> WSSMessage {
     let game = get_running_game_by_name(&game_name);
     
     if game.is_none() {
@@ -50,7 +49,7 @@ pub fn place_unit(game_name: String, selector: UnitSelector, x: i32, y: i32, rot
     let mut game = game.unwrap();
     let current_state = game.states.last_mut().unwrap();
     if current_state.player_turn == Player::Second {
-        current_state.move_que.push(Move::Bug(BugMove::MainMove(BugMainPhaseMove::PlaceUnit(selector, x, y, rotate))));
+        current_state.move_que.push(Move::Bug(BugMove::MainMove(BugMainPhaseMove::PlaceTile(selector, x, y, rotate))));
 
         replace_game(game_name, game.clone());
         WSSMessage::State(game)
@@ -60,26 +59,6 @@ pub fn place_unit(game_name: String, selector: UnitSelector, x: i32, y: i32, rot
     }
 
 }
-
-pub fn place_structure(game_name: String, selector: StructureSelector, x: i32, y: i32) -> WSSMessage {
-    let game = get_running_game_by_name(&game_name);
-    
-    if game.is_none() {
-        return WSSMessage::Error("Game not fund".to_string());
-    }
-    let mut game = game.unwrap();
-    let current_state = game.states.last_mut().unwrap();
-    if current_state.player_turn == Player::First {
-        current_state.move_que.push(Move::Tech(TechMove::MainMove(TechMainPhaseMove::Build(selector, x, y))));
-
-        replace_game(game_name, game.clone());
-        WSSMessage::State(game)
-
-    } else {
-        WSSMessage::Error("No build command for bug player".to_owned())
-    }
-}
-
 
 pub fn next_phase(game_name: String) -> WSSMessage {
     let game = get_running_game_by_name(&game_name);
@@ -124,8 +103,8 @@ pub fn undo_move(game_name: String) -> WSSMessage {
 }
 
 pub fn get_recepies(_: String) -> WSSMessage {
-    let recepies = structure_recepies();
-    WSSMessage::StructureRecepeies(recepies)
+    let recepies = tile_recepies();
+    WSSMessage::TileRecepeies(recepies)
 }
 
 pub fn activate_ability(game_name: String, tile_id: String, ability_index: i32, additional_data: std::collections::HashMap<String, String>) -> WSSMessage {
