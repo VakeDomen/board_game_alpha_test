@@ -123,7 +123,7 @@ impl Placable for BasicPlacer {
         Ok(Tile::from(tile))
     } 
 
-    fn can_place_on(&self, mut tile: &NewTile, game_state: &GameState, x: i32, y: i32) -> Result<(), MapError> {
+    fn can_place_on(&self, tile: &NewTile, game_state: &GameState, x: i32, y: i32) -> Result<(), MapError> {
 
         let recepie = get_recepie(&tile.tile_type);
         let footprint = game_state.map.get_footprint_tiles(x, y, &recepie.footprint);

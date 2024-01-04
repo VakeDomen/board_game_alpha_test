@@ -48,7 +48,7 @@ impl From<String> for GameCommand {
                 if tokens.len() != 5 {
                     Self::InvalidCommand("5 tokens needed ".to_string())
                 } else {
-                    let unit_selector = match parse_unit_selector(tokens[1]) {
+                    let unit_selector = match parse_tile_selector(tokens[1]) {
                         Some(s) => s,
                         None => return Self::InvalidCommand("Can't parse unit selector".to_string()),
                     };
@@ -97,7 +97,7 @@ impl From<String> for GameCommand {
     }
 }
 
-fn parse_structure_selector(token: &str) -> Option<TileSelector> {
+fn parse_tile_selector(token: &str) -> Option<TileSelector> {
     match token {
         "BugBase1" => Some(TileSelector::BugBase1),
         "BugBase2" => Some(TileSelector::BugBase2),
@@ -115,17 +115,11 @@ fn parse_structure_selector(token: &str) -> Option<TileSelector> {
         "TechArtillery2" => Some(TileSelector::TechArtillery2),
         "TechWall1" => Some(TileSelector::TechWall1),
         "TechNuke" => Some(TileSelector::TechNuke),
-        _ => None,
-    }
-}
-fn parse_unit_selector(token: &str) -> Option<TileSelector> {
-    match token {
         "BugSoldierLV1" => Some(TileSelector::BugSoldierLV1),
         "BugSoldierLV2" => Some(TileSelector::BugSoldierLV2),
         "BugSoldierLV3" => Some(TileSelector::BugSoldierLV3),
         "BugEliteMelee" => Some(TileSelector::BugEliteMelee),
         "BugEliteRanged" => Some(TileSelector::BugEliteRanged),
-        
         _ => None,
     }
 }

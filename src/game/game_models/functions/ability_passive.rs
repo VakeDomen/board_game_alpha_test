@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::{game_models::types::{tile::{TileSelector, Tile}, tile_traits::PassiveAbility, resource::Resource, map::Interactor}, core::{game_state::GameState, game::Player}};
+use crate::game::{game_models::types::{tile::{TileSelector, Tile}, tile_traits::PassiveAbility, resource::Resource, map::Interactor}, core::game_state::GameState};
 
 
 pub struct BugBase1Passive;

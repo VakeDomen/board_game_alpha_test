@@ -15,7 +15,7 @@ use crate::game::game_models::{
     }, 
     data::{
         activation_costs::get_activation_costs, 
-        placers::get_placers
+        placers::get_placers, stats::get_stats
     },
 };
 use super::{
@@ -61,7 +61,6 @@ pub enum TurnPhase {
     End,
 }
 
-
 impl Game {
 
     pub fn apply_state(&mut self) -> Result<(), ProgressionError> { 
@@ -97,7 +96,6 @@ impl Game {
         Ok(())
     }
 }
-
 
 fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
     apply_setup(state)?;
@@ -188,20 +186,44 @@ fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
 
 fn apply_dmg(state: &mut GameState) -> Result<(), ProgressionError> {
     let mut que = mem::take(&mut state.move_que);
+    let stats =get_stats();
     for potential_move in &mut que {
-        if state.player_turn == Player::First {
-            if let Move::Tech(tech_move) = potential_move {
-                if let PhaseMove::DmgMove(initiator_id, target_id, dmg) = tech_move {
-                    todo!()
-                }
-            }
-            continue;
-        }
 
-        if state.player_turn == Player::Second {
-            if let Move::Bug(bug_move) = potential_move {
-                if let PhaseMove::DmgMove(initiator_id, target_id, dmg) = bug_move {
-                    todo!()
+        let phase_move = match potential_move {
+            Move::Tech(pm) => pm,
+            Move::Bug(pm) => pm,
+        };
+
+        if let PhaseMove::DmgMove(initiator_id, target_id, dmg) = phase_move {
+            
+            let initiator = state.tiles.get_mut(initiator_id);
+            if let None = initiator {
+                return Err(ProgressionError::NoDmgInitiatorFound);
+            }
+            let initiator = initiator.unwrap();
+            
+            if stats.get(&initiator.tile_type).unwrap().attack - initiator.dmg_delt < *dmg {
+                return Err(ProgressionError::InitiatorDealingTooMuchDmg);
+            }
+
+            initiator.dmg_delt += *dmg;
+
+            let target = state.tiles.get_mut(target_id);
+            if let None = target {
+                return Err(ProgressionError::NoDmgTargetFound);
+            }
+            let target = target.unwrap();
+
+            target.dmg_recieved += *dmg;
+
+            // if dead
+            if stats.get(&target.tile_type).unwrap().hp - target.dmg_recieved <= 0 {
+                // remove target
+                for (loc, tile) in state.map.get_footprint_tiles_by_id(&target_id).iter() {
+                    if let TileOption::Id(id) = tile {
+                        state.tiles.remove(id);
+                    }
+                    state.map[loc.0][loc.1] = "".to_owned();
                 }
             }
         }
@@ -279,7 +301,10 @@ fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
             if !all_t1_tiles {
                 continue;
             }
-            for (loc, _) in adj.iter() {
+            for (loc, tile) in adj.iter() {
+                if let TileOption::Id(id) = tile {
+                    state.tiles.remove(id);
+                }
                 state.map[loc.0][loc.1] = "".to_owned();
             }
 
@@ -421,4 +446,5 @@ pub enum ProgressionError {
     CantPlaceTile(MapError),
     NoDmgInitiatorFound,
     NoDmgTargetFound,
+    InitiatorDealingTooMuchDmg,
 }

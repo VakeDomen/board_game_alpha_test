@@ -284,7 +284,6 @@ pub enum MapError {
     NotConnectedToRoad,
     NotEnougyProximitySpace,
     ConstructionOutOfBounds,
-    IncorrectPlacer,
     NotConnectedToNest,
     NotEnoughResources,
 }
