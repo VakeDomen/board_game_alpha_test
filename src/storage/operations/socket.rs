@@ -1,4 +1,6 @@
-use tokio_tungstenite::tungstenite::{Error, Message};
+use futures_util::{SinkExt, StreamExt};
+use tokio::net::TcpStream;
+use tokio_tungstenite::{tungstenite::{Error, Message}, WebSocketStream};
 
 use crate::{server::messages::wss_message::WSSMessage, storage::active::SOCKETS};
 
@@ -6,16 +8,16 @@ pub fn get_socket_name(socket_id: &String) -> Option<String> {
     let socket_data = SOCKETS.lock().unwrap();
     let s = socket_data.get(socket_id);
     if let Some(s) = s {
-        return s.1.clone();
+        return s.clone();
     }
     None
 }
 
 pub fn authenticate_socket(new_name: String, socket_id: String) -> WSSMessage {
     let mut socket_data = SOCKETS.lock().unwrap();
-    for (id, data) in socket_data.iter_mut() {
+    for (id, name) in socket_data.iter_mut() {
         if *id == socket_id {
-            data.1 = Some(new_name.clone()); // Dereference to modify
+            *name = Some(new_name.clone()); // Dereference to modify
             return WSSMessage::Success(true)
         }
     }
@@ -26,38 +28,25 @@ pub fn is_authenticated(socket_id: &String) -> bool {
     let socket_data = SOCKETS.lock().unwrap();
     let s = socket_data.get(socket_id);
     if let Some(s) = s {
-        return s.1.is_some();
+        return s.is_some();
     }
     false
 }
 
-pub fn get_message(socket_id: &String) -> Result<Option<Message>, Error> {
-    let mut msg = None;
-    let mut sockets = SOCKETS.lock().unwrap();
-    let ws_option = sockets.get_mut(socket_id);
-    if let Some(ws) = ws_option {
-        match ws.0.read() {
-            Ok(raw_msg) => msg = Some(raw_msg),
-            Err(e) => {
-                println!("Socket read error: {:#?}", e);
-                return Err(e.into());
-            }
-        }
+pub async fn get_message(websocket: &mut WebSocketStream<TcpStream>) -> Result<Option<Message>, Error> {
+    let msg = websocket.next().await;
+    if let None = msg {
+        return Ok(None);
     }
-    Ok(msg)
+    let msg = msg.unwrap();
+    Ok(Some(msg?))
 }
 
-pub fn send_message(socket_id: &String, msg: WSSMessage) -> Result<(), Error> {
-    let mut sockets = SOCKETS.lock().unwrap();
-    let ws_option = sockets.get_mut(socket_id);
-    if let Some(ws) = ws_option {
-        if let Err(e) = ws.0.write(msg.into()) {
-            println!("Something went wrong sending raw_msg to WS clinet: {:#?}", e);
-            return Err(e.into())
-        };
-    
-        let _ = ws.0.flush();
-    }
+pub async fn send_message(websocket: &mut WebSocketStream<TcpStream>, msg: WSSMessage) -> Result<(), Error> {
+    if let Err(e) = websocket.send(msg.into()).await {
+        println!("Something went wrong sending raw_msg to WS clinet: {:#?}", e);
+        return Err(e.into())
+    };
     Ok(())
 }
 

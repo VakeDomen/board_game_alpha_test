@@ -40,5 +40,3 @@ fn handle_game_message(game_name: String, msg: GameCommand) -> WSSMessage {
         GameCommand::ActivateAbility(tile_id, ability_index, additional_data) => activate_ability(game_name, tile_id, ability_index, additional_data),
     }
 }
-
-
