@@ -99,6 +99,26 @@ impl Game {
 
 fn progress_from_setup(state: &mut GameState) -> Result<Option<GameState>, ProgressionError> {
     apply_setup(state)?;
+
+    let mut found_base = false;
+
+    for tile in state.tiles.values() {
+        if state.player_turn == Player::First {
+            if tile.tile_type == TileSelector::TechBase {
+                found_base = true;
+            }
+        }
+        if state.player_turn == Player::Second {
+            if tile.tile_type == TileSelector::BugBase1 {
+                found_base = true;
+            }
+        }
+    }
+
+    if !found_base {
+        return Err(ProgressionError::NoBasePlacement);
+    }
+
     if state.player_turn == Player::First {
         state.player_turn = Player::Second;
     } else {
@@ -146,12 +166,6 @@ fn progress_from_end(state: &mut GameState) -> Result<Option<GameState>, Progres
 }
 
 fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
-    if state.move_que.is_empty() {
-        return Err(ProgressionError::NoBasePlacement);
-    }
-
-    let mut setup_move = false;
-
     // trigger upgrade structs
     let mut que = mem::take(&mut state.move_que);
     for potential_move in &mut que {
@@ -159,7 +173,6 @@ fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
             if let Move::Tech(tech_move) = potential_move {
                 if let PhaseMove::SetupMove(x, y) = tech_move {
                     place_tile(&mut TileSelector::TechBase, &mut 0, state, x, y)?;   
-                    setup_move = true;
                 }
             }
             continue;
@@ -169,18 +182,11 @@ fn apply_setup(state: &mut GameState) -> Result<(), ProgressionError> {
             if let Move::Bug(bug_move) = potential_move {
                 if let PhaseMove::SetupMove(x, y) = bug_move {
                     place_tile(&mut TileSelector::BugBase1, &mut 0, state, x, y)?; 
-                    setup_move = true;
                 }
             }
         }
     }  
-
     state.move_que = que;
-
-    if !setup_move {
-        return Err(ProgressionError::NoBasePlacement);
-    }
-
     Ok(())
 }
 
