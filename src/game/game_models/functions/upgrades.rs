@@ -38,7 +38,7 @@ impl Upgradable for BugBase2Upgrader {
         if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
-        tile.tile_type = TileSelector::BugBase3;
+        
         for (location, tile_option) in game_state.map.get_tile_corners(tile.x, tile.y) {
             if let TileOption::Id(id) = tile_option {
                 tiles.remove(&id);
@@ -46,6 +46,9 @@ impl Upgradable for BugBase2Upgrader {
             game_state.map[location.0][location.1] = tile.id.clone();
         }
 
+
+        let tile = tiles.get_mut(&tile.id).unwrap();
+        tile.tile_type = TileSelector::BugBase3;
         true
     }
 
@@ -53,10 +56,13 @@ impl Upgradable for BugBase2Upgrader {
         if game_state.player_turn != tile.owner {
             return false;
         }
-        
+        println!("TILES: {:#?}", tiles);
         for (_, tile_option) in game_state.map.get_tile_corners(tile.x + 1, tile.y + 1) {
             let tile = match tile_option {
-                TileOption::Id(id) => tiles.get(&id).unwrap(),
+                TileOption::Id(id) => {
+                    println!("TILES: {:#?}", id);
+                    tiles.get(&id).unwrap()
+                },
                 TileOption::None => return false,
                 TileOption::OutOfBounds => return false,
             };
@@ -73,7 +79,7 @@ impl Upgradable for BugBase1Upgrader {
         if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
-        tile.tile_type = TileSelector::BugBase2;
+        
 
         for (location, tile_option) in game_state.map.get_tile_adjacent(tile.x, tile.y) {
             if let TileOption::Id(id) = tile_option {
@@ -81,6 +87,9 @@ impl Upgradable for BugBase1Upgrader {
             }
             game_state.map[location.0][location.1] = tile.id.clone();
         }
+
+        let tile = tiles.get_mut(&tile.id).unwrap();
+        tile.tile_type = TileSelector::BugBase2;
         // offset top left corner
         tile.x -= 1;
         tile.y -= 1;
@@ -112,6 +121,7 @@ impl Upgradable for RefineryUpgrader {
         if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
+        let tile = tiles.get_mut(&tile.id).unwrap();
         tile.activated = false;
         tile.activation_resources = vec![];
         tile.tile_type = TileSelector::TechRefinery2;
@@ -139,6 +149,7 @@ impl Upgradable for MineUpgrader {
         if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
+        let tile = tiles.get_mut(&tile.id).unwrap();
         tile.activated = false;
         tile.activation_resources = vec![];
         tile.tile_type = TileSelector::TechMine2;
@@ -166,6 +177,7 @@ impl Upgradable for TurretUpgrader {
         if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
+        let tile = tiles.get_mut(&tile.id).unwrap();
         tile.activated = false;
         tile.activation_resources = vec![];
         tile.tile_type = TileSelector::TechTurret2;
@@ -193,6 +205,7 @@ impl Upgradable for AtrileryUpgrader {
         if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
+        let tile = tiles.get_mut(&tile.id).unwrap();
         tile.activated = false;
         tile.activation_resources = vec![];
         tile.tile_type = TileSelector::TechArtillery2;
