@@ -34,14 +34,14 @@ pub fn get_upgraders() -> HashMap<TileSelector, Option<Box<dyn Upgradable>>> {
 
 
 impl Upgradable for BugBase2Upgrader {
-    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
-        if !&self.can_upgrade(game_state, tile) {
+    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
+        if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
         tile.tile_type = TileSelector::BugBase3;
         for (location, tile_option) in game_state.map.get_tile_corners(tile.x, tile.y) {
             if let TileOption::Id(id) = tile_option {
-                game_state.tiles.remove(&id);
+                tiles.remove(&id);
             }
             game_state.map[location.0][location.1] = tile.id.clone();
         }
@@ -49,14 +49,14 @@ impl Upgradable for BugBase2Upgrader {
         true
     }
 
-    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile) -> bool {
+    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
         if game_state.player_turn != tile.owner {
             return false;
         }
         
         for (_, tile_option) in game_state.map.get_tile_corners(tile.x + 1, tile.y + 1) {
             let tile = match tile_option {
-                TileOption::Id(id) => game_state.tiles.get(&id).unwrap(),
+                TileOption::Id(id) => tiles.get(&id).unwrap(),
                 TileOption::None => return false,
                 TileOption::OutOfBounds => return false,
             };
@@ -69,15 +69,15 @@ impl Upgradable for BugBase2Upgrader {
 }
 
 impl Upgradable for BugBase1Upgrader {
-    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
-        if !&self.can_upgrade(game_state, tile) {
+    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
+        if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
         tile.tile_type = TileSelector::BugBase2;
 
         for (location, tile_option) in game_state.map.get_tile_adjacent(tile.x, tile.y) {
             if let TileOption::Id(id) = tile_option {
-                game_state.tiles.remove(&id);
+                tiles.remove(&id);
             }
             game_state.map[location.0][location.1] = tile.id.clone();
         }
@@ -88,14 +88,14 @@ impl Upgradable for BugBase1Upgrader {
         true
     }
 
-    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile) -> bool {
+    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
         if game_state.player_turn != tile.owner {
             return false;
         }
         
         for (_, tile_option) in game_state.map.get_tile_adjacent(tile.x, tile.y) {
             let tile = match tile_option {
-                TileOption::Id(id) => game_state.tiles.get(&id).unwrap(),
+                TileOption::Id(id) => tiles.get(&id).unwrap(),
                 TileOption::None => return false,
                 TileOption::OutOfBounds => return false,
             };
@@ -108,8 +108,8 @@ impl Upgradable for BugBase1Upgrader {
 }
 
 impl Upgradable for RefineryUpgrader {
-    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
-        if !&self.can_upgrade(game_state, tile) {
+    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
+        if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
         tile.activated = false;
@@ -118,7 +118,7 @@ impl Upgradable for RefineryUpgrader {
         true
     }
 
-    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile) -> bool {
+    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
         if game_state.player_turn != tile.owner {
             return false;
         }
@@ -135,8 +135,8 @@ impl Upgradable for RefineryUpgrader {
 }
 
 impl Upgradable for MineUpgrader {
-    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
-        if !&self.can_upgrade(game_state, tile) {
+    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
+        if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
         tile.activated = false;
@@ -145,7 +145,7 @@ impl Upgradable for MineUpgrader {
         true
     }
 
-    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile) -> bool {
+    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
         if game_state.player_turn != tile.owner {
             return false;
         }
@@ -162,8 +162,8 @@ impl Upgradable for MineUpgrader {
 }
 
 impl Upgradable for TurretUpgrader {
-    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
-        if !&self.can_upgrade(game_state, tile) {
+    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
+        if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
         tile.activated = false;
@@ -172,7 +172,7 @@ impl Upgradable for TurretUpgrader {
         true
     }
 
-    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile) -> bool {
+    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
         if game_state.player_turn != tile.owner {
             return false;
         }
@@ -189,8 +189,8 @@ impl Upgradable for TurretUpgrader {
 }
 
 impl Upgradable for AtrileryUpgrader {
-    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile) -> bool {
-        if !&self.can_upgrade(game_state, tile) {
+    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
+        if !&self.can_upgrade(game_state, tile, tiles) {
             return false;
         }
         tile.activated = false;
@@ -199,7 +199,7 @@ impl Upgradable for AtrileryUpgrader {
         true
     }
 
-    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile) -> bool {
+    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool {
         if game_state.player_turn != tile.owner {
             return false;
         }

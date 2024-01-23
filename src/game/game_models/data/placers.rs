@@ -156,8 +156,12 @@ impl Placable for BasicPlacer {
             for (location, _) in footprint.iter() {
                 for (_, tile_option) in game_state.map.get_tile_adjacent(location.0 as i32, location.1 as i32) {
                     if let TileOption::Id(tile_id) = tile_option {
-                        if let Some(tile) = game_state.tiles.get(&tile_id) {
-                            if tile.tile_type == TileSelector::TechRoad {
+                        if let Some(neighbour_tile) = game_state.tiles.get(&tile_id) {
+                            if neighbour_tile.tile_type == TileSelector::TechRoad || neighbour_tile.tile_type == TileSelector::TechBase {
+                                found_road = true;
+                            }
+
+                            if tile.tile_type == TileSelector::TechWall1 && neighbour_tile.tile_type == TileSelector::TechWall1 {
                                 found_road = true;
                             }
                         }
@@ -177,8 +181,8 @@ impl Placable for BasicPlacer {
             for (location, _) in footprint.iter() {
                 for (_, tile_option) in game_state.map.get_tile_adjacent(location.0 as i32, location.1 as i32) {
                     if let TileOption::Id(tile_id) = tile_option {
-                        if let Some(tile) = game_state.tiles.get(&tile_id) {
-                            if *spacings.get(&tile.tile_type).unwrap() {
+                        if let Some(neighbour_tile) = game_state.tiles.get(&tile_id) {
+                            if *spacings.get(&neighbour_tile.tile_type).unwrap() {
                                 naighbouring_space_occupied = true;
                             }
                         }
@@ -186,7 +190,7 @@ impl Placable for BasicPlacer {
                 }
             }
 
-            if !naighbouring_space_occupied {
+            if naighbouring_space_occupied {
                 return Err(MapError::NotEnougyProximitySpace)
             }
         }

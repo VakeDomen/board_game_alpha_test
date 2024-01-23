@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::game::{game_models::functions::ability_active::{contains_required_resources, remove_resources}, core::game_state::GameState};
 
 use super::{tile::{Tile, NewTile}, resource::Resource, map::MapError};
@@ -10,8 +12,8 @@ pub trait Placable {
 }
 
 pub trait Upgradable {
-    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile) -> bool;
-    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile) -> bool;
+    fn upgrade(&self, game_state: &mut GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool;
+    fn can_upgrade(&self, game_state: &GameState, tile: &mut Tile, tiles: &mut HashMap<String, Tile>) -> bool;
 }
 
 pub trait ActiveAbility {

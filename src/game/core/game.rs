@@ -268,59 +268,64 @@ fn apply_triggers(state: &mut GameState) -> Result<(), ProgressionError> {
 
     // trigger upgrade structs
     let mut tiles = mem::take(&mut state.tiles); // Temporarily take ownership of the tiles.
+    let mut tiles_clone = tiles.clone();
     for (_, tile) in &mut tiles {
-        if let Some(upgrader) = upgraders.get(&tile.tile_type) {
-            if let Some(upgrader) = upgrader {
-                upgrader.upgrade(state, tile); // Now it's okay to borrow state mutably.
+        if let Some(upgrader_option) = upgraders.get(&tile.tile_type) {
+            if let Some(upgrader) = upgrader_option {
+                upgrader.upgrade(state, tile, &mut tiles_clone);
             }
         }
     }  
     state.tiles = tiles; // Put the original tiles back.
+    state.tiles = tiles_clone;
 
 
     // check if T1 nests need to be placed
-    for row in 0..state.map.len() {
-        for col in 0..state.map[row].len() {
-            if !state.map[row][col].is_empty() {
-                continue;
-            }
-
-            let adj = state.map.get_tile_adjacent(row as i32, col as i32);
-            let mut all_t1_tiles = true;
-            for (_, tile_option) in adj.iter() {
-                let tile = match tile_option {
-                    TileOption::Id(id) => state.tiles.get(id).unwrap(),
-                    TileOption::None => {
+    if state.player_turn == Player::Second {
+        for row in 0..state.map.len() {
+            for col in 0..state.map[row].len() {
+                if !state.map[row][col].is_empty() {
+                    continue;
+                }
+    
+                let adj = state.map.get_tile_adjacent(row as i32, col as i32);
+                let mut all_t1_tiles = true;
+                for (_, tile_option) in adj.iter() {
+                    let tile = match tile_option {
+                        TileOption::Id(id) => state.tiles.get(id).unwrap(),
+                        TileOption::None => {
+                            all_t1_tiles = false;
+                            break; 
+                        },
+                        TileOption::OutOfBounds =>{
+                            all_t1_tiles = false;
+                            break; 
+                        },
+                    };
+                    if TileSelector::BugSoldierLV1 != tile.tile_type {
                         all_t1_tiles = false;
                         break; 
-                    },
-                    TileOption::OutOfBounds =>{
-                        all_t1_tiles = false;
-                        break; 
-                    },
-                };
-                if TileSelector::BugSoldierLV1 != tile.tile_type {
-                    all_t1_tiles = false;
-                    break; 
+                    }
                 }
-            }
-            if !all_t1_tiles {
-                continue;
-            }
-            for (loc, tile) in adj.iter() {
-                if let TileOption::Id(id) = tile {
-                    state.tiles.remove(id);
+                if !all_t1_tiles {
+                    continue;
                 }
-                state.map[loc.0][loc.1] = "".to_owned();
+                for (loc, tile) in adj.iter() {
+                    if let TileOption::Id(id) = tile {
+                        state.tiles.remove(id);
+                    }
+                    state.map[loc.0][loc.1] = "".to_owned();
+                }
+    
+    
+                place_tile(
+                    &mut TileSelector::BugBase1, 
+                    &mut 0, 
+                    state, 
+                    &mut (row as i32), 
+                    &mut (col as i32)
+                )?;            
             }
-
-            place_tile(
-                &mut TileSelector::BugBase1, 
-                &mut 0, 
-                state, 
-                &mut (row as i32), 
-                &mut (col as i32)
-            )?;            
         }
     }
     Ok(())
