@@ -21,6 +21,11 @@ pub fn get_road_connection_requirements() -> HashMap<TileSelector, bool> {
     hm.insert(TileSelector::TechArtillery2, true);
     hm.insert(TileSelector::TechWall1, false);
     hm.insert(TileSelector::TechNuke, false);
+    hm.insert(TileSelector::BugSoldierLV1, false);
+    hm.insert(TileSelector::BugSoldierLV2, false);
+    hm.insert(TileSelector::BugSoldierLV3, false);
+    hm.insert(TileSelector::BugEliteMelee, false);
+    hm.insert(TileSelector::BugEliteRanged, false);
 
     hm
 }

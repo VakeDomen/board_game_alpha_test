@@ -170,29 +170,24 @@ fn to_counts(resources: &Vec<Resource>) -> HashMap<Resource, i32> {
     counts
 }
 
-
 pub fn remove_resources(game_resources: &mut Vec<Resource>, required_resources: &Vec<Resource>) -> bool {
-    let mut required_counts = to_counts(required_resources);
+    let required_counts = to_counts(required_resources);
+    let game_resource_counts = to_counts(game_resources);
 
-    // Check if we have enough resources to remove
-    for resource in required_resources {
-        let count = required_counts.entry(resource.clone()).or_default();
-        if *count > 0 {
-            *count -= 1;
-        } else {
-            // Not enough resources; bail out early
-            return false;
+    // Check if game_resources contains at least as many of each resource as required_resources
+    for (resource, &count) in required_counts.iter() {
+        if game_resource_counts.get(resource).unwrap_or(&0) < &count {
+            return false; // Not enough of this resource
         }
     }
 
-    // If we have enough of each resource, proceed to remove them
-    for (resource, count) in required_counts {
-        for _ in 0..count {
-            if let Some(pos) = game_resources.iter().position(|x| *x == resource) {
-                game_resources.remove(pos);
-            }
+    // Remove the required resources from game_resources
+    for required_resource in required_resources {
+        if let Some(pos) = game_resources.iter().position(|r| r == required_resource) {
+            game_resources.remove(pos);
         }
     }
+
 
     true
 }

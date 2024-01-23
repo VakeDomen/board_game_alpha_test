@@ -43,6 +43,15 @@ pub fn get_activation_costs() -> HashMap<TileSelector, Vec<Vec<Resource>>> {
     hm.insert(TileSelector::TechNuke, vec![
         vec![Resource::Metal, Resource::Metal, Resource::Metal],
     ]);
+    hm.insert(TileSelector::BugSoldierLV1, vec![]);
+    hm.insert(TileSelector::BugSoldierLV2, vec![]);
+    hm.insert(TileSelector::BugSoldierLV3, vec![]);
+    hm.insert(TileSelector::BugEliteMelee, vec![
+        vec![Resource::Corpse, Resource::Corpse, Resource::Corpse]
+    ]);
+    hm.insert(TileSelector::BugEliteRanged, vec![
+        vec![Resource::Corpse, Resource::Corpse, Resource::Corpse]
+    ]);
 
     hm
 }

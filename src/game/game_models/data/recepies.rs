@@ -28,6 +28,12 @@ pub fn get_recepies() -> HashMap<TileSelector, TileRecepie> {
     recepies.insert(TileSelector::TechWall1, get_recepie(&TileSelector::TechWall1));
     recepies.insert(TileSelector::TechNuke, get_recepie(&TileSelector::TechNuke));
 
+    recepies.insert(TileSelector::BugSoldierLV1, get_recepie(&TileSelector::BugSoldierLV1));
+    recepies.insert(TileSelector::BugSoldierLV2, get_recepie(&TileSelector::BugSoldierLV2));
+    recepies.insert(TileSelector::BugSoldierLV3, get_recepie(&TileSelector::BugSoldierLV3));
+    recepies.insert(TileSelector::BugEliteMelee, get_recepie(&TileSelector::BugEliteMelee));
+    recepies.insert(TileSelector::BugEliteRanged, get_recepie(&TileSelector::BugEliteRanged));
+
     recepies
 }
 

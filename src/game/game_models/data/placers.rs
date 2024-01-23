@@ -93,7 +93,12 @@ impl Placable for BasicBugPlacer {
                     if 
                         neighbour.tile_type == TileSelector::BugBase1 ||
                         neighbour.tile_type == TileSelector::BugBase2 ||
-                        neighbour.tile_type == TileSelector::BugBase3 
+                        neighbour.tile_type == TileSelector::BugBase3 || 
+                        neighbour.tile_type == TileSelector::BugSoldierLV1 ||
+                        neighbour.tile_type == TileSelector::BugSoldierLV2 ||
+                        neighbour.tile_type == TileSelector::BugSoldierLV3 ||
+                        neighbour.tile_type == TileSelector::BugEliteMelee ||
+                        neighbour.tile_type == TileSelector::BugEliteRanged
                     {
                         return Ok(())
                     }
@@ -119,6 +124,13 @@ impl Placable for BasicPlacer {
         
         tile.x = Some(x);
         tile.y = Some(y);
+
+
+        let costs = get_costs();
+        let cost = costs.get(&tile.tile_type).unwrap();
+        if !remove_resources(&mut game_state.tech_resources, cost) {
+            return Err(MapError::NotEnoughResources);
+        }
 
         Ok(Tile::from(tile))
     } 

@@ -103,7 +103,11 @@ pub fn get_costs() -> HashMap<TileSelector, Vec<Resource>> {
         Resource::Egg, 
         Resource::Egg, 
     ]);
-    hm.insert(TileSelector::BugEliteMelee, vec![]);
-    hm.insert(TileSelector::BugEliteRanged, vec![]);
+    hm.insert(TileSelector::BugEliteMelee, vec![
+        Resource::GiantEgg
+    ]);
+    hm.insert(TileSelector::BugEliteRanged, vec![
+        Resource::GiantEgg
+    ]);
     hm
 }

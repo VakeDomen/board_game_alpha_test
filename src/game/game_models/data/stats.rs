@@ -96,6 +96,32 @@ pub fn get_stats() -> HashMap<TileSelector, TileStats> {
         attack: 0,
         range: 0,
     });
+    hm.insert(TileSelector::BugSoldierLV1, TileStats {
+        hp: 1,
+        attack: 1,
+        range: 1,
+    });
+    hm.insert(TileSelector::BugSoldierLV2, TileStats {
+        hp: 2,
+        attack: 2,
+        range: 1,
+    });
+    hm.insert(TileSelector::BugSoldierLV3, TileStats {
+        hp: 3,
+        attack: 3,
+        range: 1,
+    });
+    hm.insert(TileSelector::BugEliteMelee, TileStats {
+        hp: 10,
+        attack: 10,
+        range: 1,
+    });
+    hm.insert(TileSelector::BugEliteRanged, TileStats {
+        hp: 5,
+        attack: 5,
+        range: 3,
+    });
+    
 
     hm
 }

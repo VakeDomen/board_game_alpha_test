@@ -22,6 +22,11 @@ pub fn get_spaced_placements() -> HashMap<TileSelector, bool> {
     hm.insert(TileSelector::TechArtillery2,false);
     hm.insert(TileSelector::TechWall1,false);
     hm.insert(TileSelector::TechNuke, true);
-
+    hm.insert(TileSelector::BugSoldierLV1, false);
+    hm.insert(TileSelector::BugSoldierLV2, false);
+    hm.insert(TileSelector::BugSoldierLV3, false);
+    hm.insert(TileSelector::BugEliteMelee, false);
+    hm.insert(TileSelector::BugEliteRanged, false);
+    
     hm
 }

@@ -115,7 +115,6 @@ pub fn get_running_game_by_name(game_name: &str) -> Option<Game> {
 
 pub fn replace_game(name: String, game: Game) {
     remove_from_storage(name);
-    println!("{:#?}", game);
     add_to_storage(MatchState::Running(game));
     save_matches();
 }
