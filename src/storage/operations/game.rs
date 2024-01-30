@@ -47,6 +47,25 @@ pub fn set_player2(game_name: String, player_name: String) {
     }
 }   
 
+pub fn get_other_player(game_name: String, player_name: String) -> Option<String> {
+    let mut games = MATCHES.lock().unwrap();
+    for game in games.iter_mut() {
+        if let MatchState::Lobby(g) = game {
+            if g.name == game_name {
+                if g.player1 == player_name {
+                    return g.player2.clone();
+                }
+                if let Some(p2) = g.player2.clone() {
+                    if p2 == player_name {
+                        return Some(g.player1.clone());
+                    }
+                }
+            }
+        }
+    }
+    None
+}   
+
 pub fn has_second_player(name: &str) -> bool {
     let game = get_lobby_game_by_name(name.to_string());
     if !game.is_some() {

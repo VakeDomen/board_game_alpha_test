@@ -39,7 +39,7 @@ impl Upgradable for BugBase2Upgrader {
             return false;
         }
         
-        for (location, tile_option) in game_state.map.get_tile_corners(tile.x, tile.y) {
+        for (location, tile_option) in game_state.map.get_tile_corners(tile.x + 1, tile.y + 1) {
             if let TileOption::Id(id) = tile_option {
                 tiles.remove(&id);
             }

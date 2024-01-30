@@ -1,5 +1,5 @@
 use crate::{
-    storage::operations::socket::authenticate_socket, 
+    storage::operations::{game::get_other_player, socket::authenticate_socket}, 
     server::messages::{wss_message::WSSMessage, control_commands::ControlCommand, game_commands::GameCommand}
 };
 
@@ -8,7 +8,11 @@ use super::{control_message::{create_game, join_game, start_game, list_lobby, li
 
 pub fn handle(msg: WSSMessage, socket_id: String) -> WSSMessage {
     match msg {
-        WSSMessage::Game(name, g) => handle_game_message(name, g),
+        WSSMessage::Game(name, g) => {
+            let msg = handle_game_message(name.clone(), g);
+            let other_player = get_other_player(name, socket_id);
+            return msg;
+        },
         WSSMessage::Control(c) => handle_control_message(c, socket_id),
         _ => return WSSMessage::Unknown,
     }
